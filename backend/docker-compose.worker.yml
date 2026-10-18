@@ -1,0 +1,15 @@
+# Runs the two background workers on a single VM.
+# Usage (on the VM, inside the backend folder):
+#   docker compose -f docker-compose.worker.yml up -d --build
+services:
+  worker-quick:
+    build: .
+    command: python -m app.worker resumes reminders
+    env_file: .env
+    restart: unless-stopped
+
+  worker-suggestions:
+    build: .
+    command: python -m app.worker suggestions
+    env_file: .env
+    restart: unless-stopped
