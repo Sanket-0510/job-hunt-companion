@@ -1,0 +1,33 @@
+# Secrets: never commit. Only the *.env.example templates are committed.
+.env
+.env.*
+!.env.example
+*.pem
+
+# Python (backend)
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node (frontend; frontend/.gitignore adds the Next.js build folders)
+node_modules/
+.next/
+*.tsbuildinfo
+
+# Logs and local test files
+*.log
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code and code-context-engine: local, per-machine files
+.cce/
+.claude/
+.mcp.json
+CLAUDE.md
+AGENTS.md

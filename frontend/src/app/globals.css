@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens from the v0 spec (section 4, look and feel).
+ * shadcn's semantic names (background, primary, ...) map onto them so its components match.
+ * Dark theme comes later: add a .dark block with the same roles.
+ */
+:root {
+  --page: #f3f5f7;
+  --ink: #17212b;
+  --ink-muted: #5b6875;
+  --line: #d9dfe5;
+
+  /* Tracks: direct apply is always teal, referral always purple */
+  --direct: #1f6f78;
+  --direct-tint: #e4f0f1;
+  --referral: #6a4fb0;
+  --referral-tint: #eee9f8;
+
+  /* Due / warning */
+  --due: #c2410c;
+  --due-tint: #fdeee6;
+
+  /* Stage colours with pale tints (values from the Figma wireframes) */
+  --stage-to-do: #5b6875;
+  --stage-to-do-tint: #eceff2;
+  --stage-applied: #1d5fbf;
+  --stage-applied-tint: #e6eefa;
+  --stage-referral: #6a4fb0;
+  --stage-referral-tint: #eee9f8;
+  --stage-interview: #a15c07;
+  --stage-interview-tint: #fbf1dc;
+  --stage-offer: #15803d;
+  --stage-offer-tint: #e7f6ec;
+  --stage-closed: #b42318;
+  --stage-closed-tint: #fbe9e7;
+
+  /* shadcn roles */
+  --background: var(--page);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f4;
+  --secondary-foreground: var(--ink);
+  --muted: #eef1f4;
+  --muted-foreground: var(--ink-muted);
+  --accent: #eef1f4;
+  --accent-foreground: var(--ink);
+  --destructive: #b42318;
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--ink);
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-page: var(--page);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-direct: var(--direct);
+  --color-direct-tint: var(--direct-tint);
+  --color-referral: var(--referral);
+  --color-referral-tint: var(--referral-tint);
+  --color-due: var(--due);
+  --color-due-tint: var(--due-tint);
+  --color-stage-to-do: var(--stage-to-do);
+  --color-stage-to-do-tint: var(--stage-to-do-tint);
+  --color-stage-applied: var(--stage-applied);
+  --color-stage-applied-tint: var(--stage-applied-tint);
+  --color-stage-referral: var(--stage-referral);
+  --color-stage-referral-tint: var(--stage-referral-tint);
+  --color-stage-interview: var(--stage-interview);
+  --color-stage-interview-tint: var(--stage-interview-tint);
+  --color-stage-offer: var(--stage-offer);
+  --color-stage-offer-tint: var(--stage-offer-tint);
+  --color-stage-closed: var(--stage-closed);
+  --color-stage-closed-tint: var(--stage-closed-tint);
+
+  /* Fonts: Bricolage Grotesque headings and big numbers, Plex Sans body, Plex Mono data */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-bricolage), var(--font-plex-sans), sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading;
+  }
+  /* Every control shows a clear focus outline (spec accessibility rule). */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ink;
+  }
+}
+
+/* Indeterminate bar while the resume is being read. */
+@keyframes progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
