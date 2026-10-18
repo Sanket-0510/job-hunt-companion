@@ -38,7 +38,7 @@ function Card({
   return (
     <section
       className={cn(
-        "flex flex-col gap-4 rounded-xl border bg-white p-4 md:p-6",
+        "flex flex-col gap-4 rounded-xl border bg-card p-4 md:p-6",
         danger ? "border-destructive" : "border-line",
       )}
     >
@@ -112,7 +112,7 @@ function ResumeBox({ profile, onParsed }: { profile: Profile; onParsed: (p: Pars
     <div className="flex flex-col gap-1.5">
       <span className="text-[13px] font-medium text-ink">Resume</span>
       <div className="flex items-center gap-3 rounded-lg border border-line p-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#eceff2] font-mono text-[10px] text-ink-muted">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-chip font-mono text-[10px] text-ink-muted">
           PDF
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
@@ -226,7 +226,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
           value={f.highlights}
           onChange={(e) => set("highlights", e.target.value)}
           placeholder="I've worked at PhonePe, SuperMoney (Flipkart) and as an LFX mentee with Hyperledger."
-          className="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink"
+          className="rounded-lg border border-line bg-card px-3 py-2.5 text-sm text-ink"
         />
         <p className="text-xs text-ink-muted">One sentence that goes into your referral message.</p>
       </div>
@@ -308,7 +308,7 @@ function TemplatesCard({ profile }: { profile: Profile }) {
     }
   }
 
-  const area = "min-h-[220px] rounded-lg border border-line bg-white px-3 py-2.5 text-sm leading-5 text-ink";
+  const area = "min-h-[220px] rounded-lg border border-line bg-card px-3 py-2.5 text-sm leading-5 text-ink";
   return (
     <Card title="Message templates" subtitle="Your wording for the copy-ready messages on every job.">
       <div className="flex flex-col gap-1.5">
@@ -326,7 +326,7 @@ function TemplatesCard({ profile }: { profile: Profile }) {
             <code
               key={f}
               title={d?.fields[f]}
-              className={cn("rounded-md px-2 py-0.5 font-mono text-xs", f === "[Name]" ? "bg-due-tint text-due" : "bg-[#eceff2] text-ink")}
+              className={cn("rounded-md px-2 py-0.5 font-mono text-xs", f === "[Name]" ? "bg-due-tint text-due" : "bg-chip text-ink")}
             >
               {f}
             </code>
@@ -382,7 +382,7 @@ function RemindersCard({ profile }: { profile: Profile }) {
         <label className="flex items-center gap-2 text-sm text-ink-muted opacity-60">
           <input type="radio" name="channel" className={radio} disabled />
           WhatsApp
-          <span className="rounded-md bg-[#eceff2] px-2 py-0.5 text-xs font-semibold">Coming soon</span>
+          <span className="rounded-md bg-chip px-2 py-0.5 text-xs font-semibold">Coming soon</span>
         </label>
       </fieldset>
       <SelectField
@@ -439,7 +439,7 @@ function DataCard() {
           <p className="text-xs text-ink-muted">Removes your account and all your jobs.</p>
         </div>
       ) : (
-        <div role="alertdialog" aria-labelledby="delete-warning" className="flex flex-col gap-3 rounded-lg border border-[#efc0bb] bg-stage-closed-tint p-4">
+        <div role="alertdialog" aria-labelledby="delete-warning" className="flex flex-col gap-3 rounded-lg border border-[var(--edge-red)] bg-stage-closed-tint p-4">
           <p id="delete-warning" className="flex gap-2 text-sm font-semibold text-destructive">
             <span aria-hidden>⚠</span>
             This deletes your account and every job you&apos;ve tracked. It can&apos;t be undone. Export your jobs first if you want a copy.

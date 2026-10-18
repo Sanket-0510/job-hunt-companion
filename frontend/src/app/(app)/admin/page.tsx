@@ -46,7 +46,7 @@ async function fetchStats(): Promise<Stats | null> {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-4 md:p-5">
+    <section className="rounded-xl border border-line bg-card p-4 md:p-5">
       <h2 className="mb-3 text-lg font-semibold text-ink">{title}</h2>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3">{children}</dl>
     </section>
@@ -65,7 +65,7 @@ function Stat({ label, value, big }: { label: string; value: number | string; bi
 function SignupsChart({ days }: { days: Stats["signups_by_day"] }) {
   const max = Math.max(1, ...days.map((d) => d.signups));
   return (
-    <section className="rounded-xl border border-line bg-white p-4 md:p-5">
+    <section className="rounded-xl border border-line bg-card p-4 md:p-5">
       <h2 className="mb-3 text-lg font-semibold text-ink">Signups, last 30 days</h2>
       <div className="flex h-28 items-end gap-[3px]" role="img" aria-label="Daily signups, last 30 days">
         {days.map((d) => (

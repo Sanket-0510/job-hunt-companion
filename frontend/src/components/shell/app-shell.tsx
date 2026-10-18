@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronDownIcon } from "lucide-react";
 
 import { Brand } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,7 +72,7 @@ export function AvatarMenu() {
 function AppHeader() {
   const isActive = useActive();
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white">
+    <header className="sticky top-0 z-30 border-b border-line bg-card">
       <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-4 md:h-16 md:px-8">
         <Brand href="/dashboard" />
         <nav aria-label="Main" className="ml-10 hidden h-full items-stretch md:flex">
@@ -92,6 +93,7 @@ function AppHeader() {
           ))}
         </nav>
         <span className="flex-1" />
+        <ThemeToggle />
         <AvatarMenu />
       </div>
     </header>
@@ -104,7 +106,7 @@ function TabBar() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-white pt-1.5 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pt-1.5 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
     >
       {NAV.map((item) => {
         const active = isActive(item.href);

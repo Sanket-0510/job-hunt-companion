@@ -43,7 +43,7 @@ export function TagInput({
       <label htmlFor={id} className="text-[13px] font-medium text-ink">
         {label}
       </label>
-      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-line bg-white p-2 focus-within:border-ink">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-line bg-card p-2 focus-within:border-ink">
         {values.map((v, i) => {
           const starred = starFirst && i === 0;
           return (
@@ -51,7 +51,7 @@ export function TagInput({
               key={v}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-medium text-ink",
-                starred ? "border border-ink bg-white" : "bg-[#eceff2]",
+                starred ? "border border-ink bg-card" : "bg-chip",
               )}
             >
               {starred && <span aria-label="Preferred">★</span>}
@@ -82,7 +82,7 @@ export function TagInput({
             }
           }}
           onBlur={() => draft && add(draft)}
-          className="h-7 min-w-[120px] flex-1 bg-transparent px-1 text-sm text-ink outline-none placeholder:text-[#6b7785]"
+          className="h-7 min-w-[120px] flex-1 bg-transparent px-1 text-sm text-ink outline-none placeholder:text-faint"
         />
       </div>
       {helper && (

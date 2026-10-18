@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Brand } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { JobCard } from "@/components/jobs/job-card";
 import { PipelineCounts } from "@/components/jobs/pipeline-counts";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ function Rail({ track, steps }: { track: "direct" | "referral"; steps: Step[] })
                 aria-hidden
                 className={cn(
                   "size-3.5 rounded-full",
-                  s.state === "todo" ? "border-[1.5px] border-[#b8c1ca] bg-white" : color,
+                  s.state === "todo" ? "border-[1.5px] border-field bg-card" : color,
                   s.state === "current" && cn("border-4", ring),
                 )}
               />
@@ -66,7 +67,7 @@ function TwoTracksVisual() {
   return (
     <div
       aria-label="Example job with both tracks"
-      className="flex w-full flex-col gap-6 rounded-2xl border border-line bg-white p-5 shadow-[0_4px_16px_rgba(23,33,43,0.12)] md:w-[500px] md:shrink-0 md:p-7"
+      className="flex w-full flex-col gap-6 rounded-2xl border border-line bg-card p-5 shadow-[0_4px_16px_rgba(23,33,43,0.12)] md:w-[500px] md:shrink-0 md:p-7"
     >
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -95,7 +96,7 @@ function TwoTracksVisual() {
       />
       <div className="flex items-center gap-2.5 rounded-[10px] bg-page py-2.5 pr-2.5 pl-3.5">
         <span className="flex-1 text-[13px] text-ink">Follow-up for Rohit is ready to send</span>
-        <span className="rounded-lg bg-ink px-3 py-2 text-[13px] font-semibold text-white">Copy follow-up</span>
+        <span className="rounded-lg bg-ink px-3 py-2 text-[13px] font-semibold text-page">Copy follow-up</span>
       </div>
     </div>
   );
@@ -163,7 +164,7 @@ const SAMPLE_JOB: Job = {
 /** The real Jobs components with sample data, made inert so nothing can be clicked. */
 function JobsPreview() {
   return (
-    <div className="relative h-[560px] overflow-hidden rounded-2xl border border-line bg-white md:h-[640px]">
+    <div className="relative h-[560px] overflow-hidden rounded-2xl border border-line bg-card md:h-[640px]">
       <div className="flex items-center gap-1.5 border-b border-line px-3.5 py-2.5" aria-hidden>
         <span className="size-2.5 rounded-full bg-line" />
         <span className="size-2.5 rounded-full bg-line" />
@@ -209,10 +210,11 @@ const FEATURES = [
 export function Landing() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="border-b border-line bg-white">
+      <header className="border-b border-line bg-card">
         <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-4 md:h-16 md:px-8">
           <Brand href="/" />
           <span className="flex-1" />
+          <ThemeToggle />
           <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/login" />}>
             Log in
           </Button>
@@ -251,7 +253,7 @@ export function Landing() {
               <h2 className="text-[22px] font-semibold text-ink">{f.title}</h2>
               <p className="text-[15px] leading-6 text-ink-muted">{f.body}</p>
               {f.badge && (
-                <span className="self-start rounded-md bg-[#eceff2] px-2 py-0.5 text-xs font-semibold text-ink-muted">
+                <span className="self-start rounded-md bg-chip px-2 py-0.5 text-xs font-semibold text-ink-muted">
                   {f.badge}
                 </span>
               )}

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
+
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -29,7 +31,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#17212b",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#17212b" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1318" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -39,7 +44,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${bricolage.variable} ${plexSans.variable} ${plexMono.variable} h-full`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <Providers>{children}</Providers>
       </body>

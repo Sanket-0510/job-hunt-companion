@@ -34,7 +34,7 @@ export function MessagePanel({ title, message }: { title: string; message: Messa
   const [open, setOpen] = useState(false);
   const body = useRef<HTMLDivElement>(null);
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-white">
+    <div className="overflow-hidden rounded-lg border border-line bg-card">
       <div className="flex items-center gap-2 py-2 pr-2 pl-3">
         <button
           type="button"

@@ -8,7 +8,7 @@ export function BrandMark({ size = 28 }: { size?: number }) {
   return (
     <span
       aria-hidden
-      className="inline-flex shrink-0 items-center justify-center gap-[3px] rounded-[8px] bg-ink"
+      className="inline-flex shrink-0 items-center justify-center gap-[3px] rounded-[8px] bg-[#17212b]"
       style={{ width: size, height: size }}
     >
       <span className="w-1 rounded-[2px] bg-[#3fa7b2]" style={{ height: bar }} />

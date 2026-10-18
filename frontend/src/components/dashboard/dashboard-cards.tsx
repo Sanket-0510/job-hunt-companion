@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 
 function Card({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <section className={cn("overflow-hidden rounded-xl border border-line bg-white", className)}>
+    <section className={cn("overflow-hidden rounded-xl border border-line bg-card", className)}>
       {children}
     </section>
   );

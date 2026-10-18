@@ -39,7 +39,7 @@ function LinkPill({ href, children }: { href: string; children: React.ReactNode 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-full border border-line bg-white px-2.5 py-[5px] text-xs font-medium text-ink hover:bg-page"
+      className="rounded-full border border-line bg-card px-2.5 py-[5px] text-xs font-medium text-ink hover:bg-page"
     >
       {children} ↗
     </a>
@@ -59,7 +59,7 @@ function TrackPanel({
   return (
     <section
       aria-label={direct ? "Direct apply" : "Referral"}
-      className="overflow-hidden rounded-[10px] border border-line bg-white"
+      className="overflow-hidden rounded-[10px] border border-line bg-card"
     >
       <header
         className={cn(
@@ -144,7 +144,7 @@ export function JobCard({ job }: { job: Job }) {
     <article
       id={`job-${job.id}`}
       className={cn(
-        "flex scroll-mt-24 overflow-hidden rounded-xl border border-line bg-white transition-opacity",
+        "flex scroll-mt-24 overflow-hidden rounded-xl border border-line bg-card transition-opacity",
         closed && "opacity-55 focus-within:opacity-100 hover:opacity-100",
       )}
     >

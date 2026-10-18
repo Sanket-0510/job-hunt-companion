@@ -35,7 +35,7 @@ function Count({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "flex min-w-[76px] shrink-0 flex-col items-start gap-0.5 rounded-lg border bg-white px-3 py-2 text-left",
+        "flex min-w-[76px] shrink-0 flex-col items-start gap-0.5 rounded-lg border bg-card px-3 py-2 text-left",
         active ? "border-2 border-ink px-[11px] py-[7px]" : "border-line hover:border-ink-muted",
       )}
     >
@@ -91,7 +91,7 @@ export function PipelineCounts({
     onFilter(active === key ? cleared : { ...cleared, ...patch });
 
   return (
-    <section aria-label="Pipeline counts" className="flex flex-col gap-3.5 rounded-xl border border-line bg-white p-3.5 md:p-5">
+    <section aria-label="Pipeline counts" className="flex flex-col gap-3.5 rounded-xl border border-line bg-card p-3.5 md:p-5">
       <Row track="direct" email={directEmail}>
         <Count number={counts.all_jobs} label="All jobs" active={active === "all"} onClick={() => onFilter(cleared)} />
         {(Object.keys(DIRECT_LABELS) as (keyof typeof DIRECT_LABELS)[]).map((s) => (

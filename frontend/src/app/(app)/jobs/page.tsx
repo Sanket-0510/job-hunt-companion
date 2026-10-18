@@ -78,7 +78,7 @@ function SearchBox({ value, onChange }: { value: string; onChange: (q: string) =
     return () => clearTimeout(t);
   }, [text, synced, onChange]);
   return (
-    <label className="flex h-11 shrink-0 items-center gap-2 rounded-lg md:flex-1 border border-line bg-white px-3 focus-within:border-ink">
+    <label className="flex h-11 shrink-0 items-center gap-2 rounded-lg md:flex-1 border border-line bg-card px-3 focus-within:border-ink">
       <Icon name="search" size={18} className="text-ink-muted" />
       <span className="sr-only">Search jobs</span>
       <input
@@ -86,7 +86,7 @@ function SearchBox({ value, onChange }: { value: string; onChange: (q: string) =
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Search company, role, location, notes, contact, source"
-        className="h-full flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-[#6b7785]"
+        className="h-full flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-faint"
       />
     </label>
   );

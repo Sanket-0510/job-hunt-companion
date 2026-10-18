@@ -90,7 +90,7 @@ export function AddJobPanel({ onClose }: { onClose: () => void }) {
       onSubmit={onSubmit}
       noValidate
       aria-label="Add a job"
-      className="flex flex-col gap-4 rounded-xl border-2 border-ink bg-white p-4 md:p-6"
+      className="flex flex-col gap-4 rounded-xl border-2 border-ink bg-card p-4 md:p-6"
     >
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1 md:flex-row md:items-baseline md:gap-2">
@@ -137,7 +137,7 @@ export function AddJobPanel({ onClose }: { onClose: () => void }) {
           rows={3}
           value={text.notes}
           onChange={(e) => setText((t) => ({ ...t, notes: e.target.value }))}
-          className="rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink"
+          className="rounded-lg border border-line bg-card px-3 py-2.5 text-sm text-ink"
         />
       </div>
       <div className="flex gap-2">

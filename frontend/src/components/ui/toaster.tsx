@@ -46,7 +46,7 @@ export function Toaster() {
           role={t.tone === "error" ? "alert" : "status"}
           className={cn(
             "pointer-events-auto rounded-full px-4 py-2 text-sm font-medium shadow-lg",
-            t.tone === "error" ? "bg-destructive text-white" : "bg-ink text-white",
+            t.tone === "error" ? "bg-destructive text-white" : "bg-ink text-page",
           )}
         >
           {t.message}

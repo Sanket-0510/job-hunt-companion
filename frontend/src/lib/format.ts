@@ -95,13 +95,13 @@ export const SORT_LABELS: Record<JobSort, string> = {
 export type Tone = "neutral" | "grey" | "blue" | "purple" | "amber" | "green" | "red";
 
 export const TONE_CLASSES: Record<Tone, string> = {
-  neutral: "bg-white border-line text-ink",
+  neutral: "bg-card border-line text-ink",
   grey: "bg-stage-to-do-tint border-line text-ink-muted",
-  blue: "bg-stage-applied-tint border-[#b9cdee] text-stage-applied",
-  purple: "bg-stage-referral-tint border-[#cfc3ec] text-stage-referral",
-  amber: "bg-stage-interview-tint border-[#ecd3a3] text-stage-interview",
-  green: "bg-stage-offer-tint border-[#b7e0c4] text-stage-offer",
-  red: "bg-stage-closed-tint border-[#efc0bb] text-stage-closed",
+  blue: "bg-stage-applied-tint border-[var(--edge-blue)] text-stage-applied",
+  purple: "bg-stage-referral-tint border-[var(--edge-purple)] text-stage-referral",
+  amber: "bg-stage-interview-tint border-[var(--edge-amber)] text-stage-interview",
+  green: "bg-stage-offer-tint border-[var(--edge-green)] text-stage-offer",
+  red: "bg-stage-closed-tint border-[var(--edge-red)] text-stage-closed",
 };
 
 export const DIRECT_TONES: Record<DirectStatus, Tone> = {

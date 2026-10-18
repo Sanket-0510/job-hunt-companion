@@ -96,7 +96,7 @@ export function DateField({
       <div
         className={cn(
           "relative flex h-10 items-center gap-2 rounded-lg border px-2.5",
-          due ? "border-due bg-due-tint text-due" : "border-line bg-white text-ink",
+          due ? "border-due bg-due-tint text-due" : "border-line bg-card text-ink",
         )}
       >
         <Icon name="calendar" className={due ? "text-due" : "text-ink-muted"} />
@@ -136,7 +136,7 @@ export function CheckboxField({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="size-[18px] cursor-pointer rounded-[4px] border-[1.5px] border-[#9aa4ae] accent-ink"
+        className="size-[18px] cursor-pointer rounded-[4px] border-[1.5px] border-field accent-ink"
       />
       {label}
     </label>
@@ -172,7 +172,7 @@ export function AutosaveInput({
     placeholder,
     onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => commit(e.target.value),
     className:
-      "w-full rounded-lg border border-line bg-white px-3 text-sm text-ink placeholder:text-[#6b7785] outline-offset-2",
+      "w-full rounded-lg border border-line bg-card px-3 text-sm text-ink placeholder:text-faint outline-offset-2",
   };
   return (
     <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>

@@ -7,13 +7,16 @@
 /*
  * Design tokens from the v0 spec (section 4, look and feel).
  * shadcn's semantic names (background, primary, ...) map onto them so its components match.
- * Dark theme comes later: add a .dark block with the same roles.
+ * The .dark block below overrides the same roles; the theme toggle adds the "dark" class.
  */
 :root {
   --page: #f3f5f7;
   --ink: #17212b;
   --ink-muted: #5b6875;
   --line: #d9dfe5;
+  --chip: #eceff2;
+  --field: #aab4be;
+  --faint: #6b7785;
 
   /* Tracks: direct apply is always teal, referral always purple */
   --direct: #1f6f78;
@@ -38,6 +41,11 @@
   --stage-offer-tint: #e7f6ec;
   --stage-closed: #b42318;
   --stage-closed-tint: #fbe9e7;
+  --edge-blue: #b9cdee;
+  --edge-purple: #cfc3ec;
+  --edge-amber: #ecd3a3;
+  --edge-green: #b7e0c4;
+  --edge-red: #efc0bb;
 
   /* shadcn roles */
   --background: var(--page);
@@ -59,6 +67,51 @@
   --input: var(--line);
   --ring: var(--ink);
   --radius: 0.625rem;
+  color-scheme: light;
+}
+
+.dark {
+  --page: #0e1318;
+  --ink: #e6ebf0;
+  --ink-muted: #9aa7b4;
+  --line: #2b3641;
+  --chip: #232d37;
+  --field: #5a6877;
+  --faint: #8794a1;
+
+  --direct: #5cc0cb;
+  --direct-tint: #153238;
+  --referral: #a994e8;
+  --referral-tint: #272040;
+  --due: #fb923c;
+  --due-tint: #3a2314;
+
+  --stage-to-do: #9aa7b4;
+  --stage-to-do-tint: #232d37;
+  --stage-applied: #7fb0f5;
+  --stage-applied-tint: #16263d;
+  --stage-referral: #a994e8;
+  --stage-referral-tint: #272040;
+  --stage-interview: #e9b45a;
+  --stage-interview-tint: #3a2e12;
+  --stage-offer: #5ccb85;
+  --stage-offer-tint: #12301e;
+  --stage-closed: #f28b82;
+  --stage-closed-tint: #3b1c1a;
+  --edge-blue: #2c4a75;
+  --edge-purple: #483a73;
+  --edge-amber: #6b5320;
+  --edge-green: #25583a;
+  --edge-red: #6b302b;
+
+  --card: #161d25;
+  --popover: #1a222b;
+  --primary-foreground: #0e1318;
+  --secondary: #202a34;
+  --muted: #202a34;
+  --accent: #202a34;
+  --destructive: #e5534b;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -85,6 +138,9 @@
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-line: var(--line);
+  --color-chip: var(--chip);
+  --color-field: var(--field);
+  --color-faint: var(--faint);
   --color-direct: var(--direct);
   --color-direct-tint: var(--direct-tint);
   --color-referral: var(--referral);

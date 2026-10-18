@@ -65,7 +65,7 @@ function Heading({ title, subtitle }: { title: string; subtitle: string }) {
 /** Sticky bottom bar with the step's actions (Figma "Action bar"). */
 function ActionBar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="sticky bottom-0 -mx-4 mt-auto border-t border-line bg-white px-4 pt-3 pb-[max(28px,env(safe-area-inset-bottom))] md:static md:mx-0 md:mb-10 md:rounded-xl md:border md:pb-3">
+    <div className="sticky bottom-0 -mx-4 mt-auto border-t border-line bg-card px-4 pt-3 pb-[max(28px,env(safe-area-inset-bottom))] md:static md:mx-0 md:mb-10 md:rounded-xl md:border md:pb-3">
       <div className="mx-auto flex max-w-[560px] items-center gap-2">{children}</div>
     </div>
   );
@@ -182,11 +182,11 @@ function ResumeStep({
               if (f) start(f);
             }}
             className={cn(
-              "flex flex-col items-center gap-2.5 rounded-[14px] border-[1.5px] border-dashed bg-white px-5 py-8 text-center",
-              dragging ? "border-ink bg-page" : "border-[#aab4be]",
+              "flex flex-col items-center gap-2.5 rounded-[14px] border-[1.5px] border-dashed bg-card px-5 py-8 text-center",
+              dragging ? "border-ink bg-page" : "border-field",
             )}
           >
-            <span className="flex size-11 items-center justify-center rounded-full bg-[#eceff2] text-ink">
+            <span className="flex size-11 items-center justify-center rounded-full bg-chip text-ink">
               <Icon name="upload" size={22} />
             </span>
             <p className="text-[15px] font-semibold text-ink">Drop your resume PDF here</p>
@@ -199,7 +199,7 @@ function ResumeStep({
         ) : (
           <div
             className={cn(
-              "flex flex-col gap-3 rounded-xl border bg-white p-4",
+              "flex flex-col gap-3 rounded-xl border bg-card p-4",
               failed ? "border-destructive" : "border-line",
             )}
           >
@@ -207,7 +207,7 @@ function ResumeStep({
               <span
                 className={cn(
                   "flex size-9 shrink-0 items-center justify-center rounded-md font-mono text-[10px]",
-                  failed ? "bg-stage-closed-tint text-destructive" : "bg-[#eceff2] text-ink-muted",
+                  failed ? "bg-stage-closed-tint text-destructive" : "bg-chip text-ink-muted",
                 )}
               >
                 PDF
@@ -232,7 +232,7 @@ function ResumeStep({
               )}
             </div>
             {reading && (
-              <span className="h-1 overflow-hidden rounded-full bg-[#eceff2]" aria-hidden>
+              <span className="h-1 overflow-hidden rounded-full bg-chip" aria-hidden>
                 <span className="block h-full w-1/3 animate-[progress_1.2s_ease-in-out_infinite] rounded-full bg-ink" />
               </span>
             )}
@@ -525,7 +525,7 @@ function ApplyStep({ profile, driveLink, onBack }: { profile?: Profile; driveLin
           <label className="flex items-center gap-2 text-sm text-ink-muted opacity-60">
             <input type="radio" name="channel" className={radio} disabled />
             WhatsApp
-            <span className="rounded-md bg-[#eceff2] px-2 py-0.5 text-xs font-semibold">Coming soon</span>
+            <span className="rounded-md bg-chip px-2 py-0.5 text-xs font-semibold">Coming soon</span>
           </label>
         </fieldset>
         {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
@@ -567,7 +567,7 @@ function Onboarding() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="flex h-14 items-center border-b border-line bg-white px-4 md:h-16 md:px-8">
+      <header className="flex h-14 items-center border-b border-line bg-card px-4 md:h-16 md:px-8">
         <Brand href="/onboarding" />
         <span className="flex-1" />
         <AvatarMenu />
