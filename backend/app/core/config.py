@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: SecretStr = SecretStr("")
 
+    # Where Google sends the user back. Empty = build it from the request URL. Set it when the
+    # browser reaches the API through a proxy, e.g. https://app.example.com/api/auth/google/callback
+    google_redirect_uri: str = ""
+
     frontend_origin: str = "http://localhost:3000"
 
     # Comma-separated emails allowed to open the admin analytics page. Empty = nobody.

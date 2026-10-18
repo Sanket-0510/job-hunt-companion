@@ -6,3 +6,11 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# The browser talks to the API through this site (NEXT_PUBLIC_API_URL=/api), so the login
+# cookie belongs to this site. Safari on iPhone drops cookies that come from another site.
+[[redirects]]
+  from = "/api/*"
+  to = "https://job-hunt-companion-prod.onrender.com/:splat"
+  status = 200
+  force = true

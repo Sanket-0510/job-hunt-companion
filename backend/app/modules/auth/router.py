@@ -140,8 +140,8 @@ async def password_reset_confirm(
 @router.get("/google/login")
 async def google_login(request: Request):
     client = google_client()
-    redirect_uri = request.url_for("google_callback")
-    return await client.authorize_redirect(request, str(redirect_uri))
+    redirect_uri = get_settings().google_redirect_uri or str(request.url_for("google_callback"))
+    return await client.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/google/callback", name="google_callback")
