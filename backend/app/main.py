@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import get_settings
 from app.core.errors import register_error_handlers
+from app.modules.admin.router import router as admin_router
 from app.modules.auth.router import router as auth_router
 from app.modules.jobs.router import router as jobs_router
 from app.modules.profiles.router import router as profile_router
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(auth_router)
+    app.include_router(admin_router)
     app.include_router(profile_router)
     app.include_router(jobs_router)
     app.include_router(resumes_router)

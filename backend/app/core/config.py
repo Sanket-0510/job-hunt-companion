@@ -55,11 +55,18 @@ class Settings(BaseSettings):
 
     frontend_origin: str = "http://localhost:3000"
 
+    # Comma-separated emails allowed to open the admin analytics page. Empty = nobody.
+    admin_emails: str = ""
+
     @model_validator(mode="after")
     def _direct_defaults_to_pooler(self) -> "Settings":
         if not self.database_direct_url.strip():
             self.database_direct_url = self.database_url
         return self
+
+    @property
+    def admin_email_set(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.admin_emails.split(",") if e.strip())
 
     @property
     def is_local(self) -> bool:
