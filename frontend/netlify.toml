@@ -1,0 +1,8 @@
+# Netlify reads this from the base directory (frontend). The Next.js plugin turns the
+# build output into the functions and static files Netlify serves.
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
