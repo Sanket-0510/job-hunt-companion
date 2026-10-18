@@ -268,7 +268,7 @@ export function SuggestionsCard() {
       ) : items.length === 0 ? (
         <p className="border-t border-line px-4 py-5 text-sm text-ink-muted">
           No picks yet. We check company job boards every 6 hours, or press Refresh. Add a target role and
-          cities in Settings for better matches.
+          cities in Settings for better matches. Some roles, like doctors, are not listed on these boards.
         </p>
       ) : (
         items.map((s) => (
