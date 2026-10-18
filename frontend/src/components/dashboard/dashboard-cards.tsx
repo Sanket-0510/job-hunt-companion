@@ -70,8 +70,8 @@ function DueRow({ item }: { item: DueItem }) {
   const { job } = item;
   return (
     <div className="flex flex-col gap-2.5 border-t border-line px-4 py-3.5">
-      <p className="flex items-baseline gap-1.5">
-        <span className="text-[15px] font-semibold text-ink">{job.company}</span>
+      <p className="flex min-w-0 items-baseline gap-1.5">
+        <span className="max-w-[60%] shrink-0 truncate text-[15px] font-semibold text-ink">{job.company}</span>
         <span className="truncate text-sm text-ink-muted">{job.role}</span>
       </p>
       <p className="flex items-center gap-2 text-[13px] text-ink">

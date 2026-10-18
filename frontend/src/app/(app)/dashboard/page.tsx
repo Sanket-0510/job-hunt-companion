@@ -63,8 +63,8 @@ export default function DashboardPage() {
           today · {d.active_count} active job{d.active_count === 1 ? "" : "s"}
         </p>
       </div>
-      <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_380px] md:items-start md:gap-6">
-        <div className="flex flex-col gap-5 md:gap-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,1fr)_380px] md:items-start md:gap-6">
+        <div className="flex min-w-0 flex-col gap-5 md:gap-6">
           <DueTodayCard items={d.due_today} />
           <SuggestionsCard />
           <div className="hidden md:block">

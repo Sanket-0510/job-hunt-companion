@@ -63,8 +63,8 @@ function Row({
         <span className="text-[13px] font-semibold">{track === "direct" ? "Direct apply" : "Referral"}</span>
         <span className="truncate font-mono text-[11px]">{email ?? "No email set"}</span>
       </div>
-      {/* Phones: one row that scrolls sideways. Desktop: wraps. */}
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
+      {/* Chips wrap onto new lines on every screen size; nothing scrolls sideways. */}
+      <div className="flex flex-wrap gap-2">
         {children}
       </div>
     </div>
