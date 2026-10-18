@@ -100,13 +100,17 @@ function AppHeader() {
   );
 }
 
-/** Phone bottom tab bar (Figma TabBar): indicator line, icon, label. */
+/**
+ * Phone bottom tab bar (Figma TabBar): indicator line, icon, label. The strip under the icons
+ * is left empty on purpose: Netlify floats a "Powered by Netlify" badge in the bottom corner,
+ * and the icons sit above it instead of underneath.
+ */
 function TabBar() {
   const isActive = useActive();
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pt-1.5 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pt-1.5 pb-[calc(env(safe-area-inset-bottom)+66px)] md:hidden"
     >
       {NAV.map((item) => {
         const active = isActive(item.href);
@@ -138,7 +142,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <AppHeader />
-      <main className="mx-auto w-full max-w-[1104px] flex-1 px-4 pt-6 pb-28 md:px-8 md:pt-10 md:pb-16">
+      <main className="mx-auto w-full max-w-[1104px] flex-1 px-4 pt-6 pb-44 md:px-8 md:pt-10 md:pb-16">
         {children}
       </main>
       <TabBar />
