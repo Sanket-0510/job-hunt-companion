@@ -24,12 +24,22 @@ import { cn } from "@/lib/utils";
 
 type Parsed = Schemas["ParsedResume"];
 
+const SECTIONS = [
+  { id: "profile", label: "Profile" },
+  { id: "emails", label: "Emails" },
+  { id: "templates", label: "Message templates" },
+  { id: "reminders", label: "Reminders" },
+  { id: "data", label: "Data" },
+] as const;
+
 function Card({
+  id,
   title,
   subtitle,
   danger,
   children,
 }: {
+  id: (typeof SECTIONS)[number]["id"];
   title: string;
   subtitle?: string;
   danger?: boolean;
@@ -37,17 +47,42 @@ function Card({
 }) {
   return (
     <section
+      id={id}
       className={cn(
-        "flex flex-col gap-4 rounded-xl border bg-card p-4 md:p-6",
+        "enter-up scroll-mt-24 overflow-hidden rounded-xl border bg-card",
         danger ? "border-destructive" : "border-line",
       )}
     >
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 border-b border-line px-5 py-4 md:px-6">
         <h2 className="text-xl font-semibold text-ink">{title}</h2>
         {subtitle && <p className="text-sm text-ink-muted">{subtitle}</p>}
       </div>
-      {children}
+      <div className="flex flex-col gap-5 p-5 md:p-6">{children}</div>
     </section>
+  );
+}
+
+/** Two fields side by side on desktop, stacked on phones. */
+function Row({ children }: { children: React.ReactNode }) {
+  return <div className="grid gap-5 md:grid-cols-2">{children}</div>;
+}
+
+function SectionNav() {
+  return (
+    <nav aria-label="Settings sections" className="md:sticky md:top-6 md:self-start">
+      <ul className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0 md:pb-0">
+        {SECTIONS.map((sec) => (
+          <li key={sec.id} className="shrink-0">
+            <a
+              href={`#${sec.id}`}
+              className="press block rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors hover:bg-chip hover:text-ink"
+            >
+              {sec.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -198,17 +233,22 @@ function ProfileCard({ profile }: { profile: Profile }) {
   }
 
   return (
-    <Card title="Profile" subtitle="Used in your messages and the Jobs header.">
-      <Field label="Full name" value={f.full_name} onChange={(e) => set("full_name", e.target.value)} />
-      <Field label="Target role" value={f.target_role} onChange={(e) => set("target_role", e.target.value)} helper="For example, SDE-1 Backend" />
-      <SelectField
-        label="Years of experience"
-        value={f.years}
-        options={[{ value: "", label: "Choose" }, ...years.map((y) => ({ value: y, label: y === "1" ? "1 year" : `${y} years` }))]}
-        onChange={(v) => set("years", v)}
-      />
-      <TagInput label="Preferred cities" values={f.cities} onChange={(v) => set("cities", v)} placeholder="Add a city" helper="The first city is your preferred one." starFirst />
-      <TagInput label="Skills" values={f.skills} onChange={(v) => set("skills", v)} placeholder="Add a skill" />
+    <Card id="profile" title="Profile" subtitle="Used in your messages and the Jobs header.">
+      <Row>
+        <Field label="Full name" value={f.full_name} onChange={(e) => set("full_name", e.target.value)} />
+        <Field label="Target role" value={f.target_role} onChange={(e) => set("target_role", e.target.value)} helper="For example, SDE-1 Backend" />
+        <SelectField
+          label="Years of experience"
+          value={f.years}
+          options={[{ value: "", label: "Choose" }, ...years.map((y) => ({ value: y, label: y === "1" ? "1 year" : `${y} years` }))]}
+          onChange={(v) => set("years", v)}
+        />
+        <Field label="LinkedIn URL" type="url" inputMode="url" placeholder="linkedin.com/in/…" value={f.linkedin_url} onChange={(e) => set("linkedin_url", e.target.value)} />
+      </Row>
+      <Row>
+        <TagInput label="Preferred cities" values={f.cities} onChange={(v) => set("cities", v)} placeholder="Add a city" helper="The first city is your preferred one." starFirst />
+        <TagInput label="Skills" values={f.skills} onChange={(v) => set("skills", v)} placeholder="Add a skill" />
+      </Row>
       <TagInput
         label="Past companies"
         values={f.companies.map((c) => c.company)}
@@ -231,28 +271,31 @@ function ProfileCard({ profile }: { profile: Profile }) {
         <p className="text-xs text-ink-muted">One sentence that goes into your referral message.</p>
       </div>
       <ResumeBox profile={profile} onParsed={applyParsed} />
-      <Field
-        label="Resume link (Google Drive)"
-        type="url"
-        inputMode="url"
-        placeholder="drive.google.com/…"
-        value={f.resume_link}
-        onChange={(e) => set("resume_link", e.target.value)}
-        helper="Messages use this as {resume link}. Set sharing to 'Anyone with the link'."
-      />
-      <Field label="LinkedIn URL" type="url" inputMode="url" placeholder="linkedin.com/in/…" value={f.linkedin_url} onChange={(e) => set("linkedin_url", e.target.value)} />
-      <Field
-        label="WhatsApp number (optional)"
-        type="tel"
-        inputMode="tel"
-        placeholder="+91 98xxx xxxxx"
-        value={f.whatsapp}
-        onChange={(e) => set("whatsapp", e.target.value)}
-        helper="We'll use this when WhatsApp reminders launch"
-      />
-      <Button className="self-start" onClick={save} disabled={update.isPending}>
-        {update.isPending ? "Saving…" : "Save profile"}
-      </Button>
+      <Row>
+        <Field
+          label="Resume link (Google Drive)"
+          type="url"
+          inputMode="url"
+          placeholder="drive.google.com/…"
+          value={f.resume_link}
+          onChange={(e) => set("resume_link", e.target.value)}
+          helper="Messages use this as {resume link}. Set sharing to 'Anyone with the link'."
+        />
+        <Field
+          label="WhatsApp number (optional)"
+          type="tel"
+          inputMode="tel"
+          placeholder="+91 98xxx xxxxx"
+          value={f.whatsapp}
+          onChange={(e) => set("whatsapp", e.target.value)}
+          helper="We'll use this when WhatsApp reminders launch"
+        />
+      </Row>
+      <div className="flex justify-end border-t border-line pt-4">
+        <Button onClick={save} disabled={update.isPending}>
+          {update.isPending ? "Saving…" : "Save profile"}
+        </Button>
+      </div>
     </Card>
   );
 }
@@ -267,13 +310,15 @@ function EmailsCard({ profile }: { profile: Profile }) {
       onError: () => toast("That doesn't look like an email address.", "error"),
     });
   return (
-    <Card title="Emails" subtitle="Shown on each track so you know which inbox to watch.">
-      <div className="[&_input]:font-mono">
-        <AutosaveInput label="Email for direct applies" value={profile.direct_email} onSave={(v) => save({ direct_email: v })} />
-      </div>
-      <div className="[&_input]:font-mono">
-        <AutosaveInput label="Email for referrals" value={profile.referral_email} onSave={(v) => save({ referral_email: v })} />
-      </div>
+    <Card id="emails" title="Emails" subtitle="Shown on each track so you know which inbox to watch.">
+      <Row>
+        <div className="[&_input]:font-mono">
+          <AutosaveInput label="Email for direct applies" value={profile.direct_email} onSave={(v) => save({ direct_email: v })} />
+        </div>
+        <div className="[&_input]:font-mono">
+          <AutosaveInput label="Email for referrals" value={profile.referral_email} onSave={(v) => save({ referral_email: v })} />
+        </div>
+      </Row>
     </Card>
   );
 }
@@ -310,15 +355,17 @@ function TemplatesCard({ profile }: { profile: Profile }) {
 
   const area = "min-h-[220px] rounded-lg border border-line bg-card px-3 py-2.5 text-sm leading-5 text-ink";
   return (
-    <Card title="Message templates" subtitle="Your wording for the copy-ready messages on every job.">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="tpl-referral" className="text-[13px] font-medium text-ink">Referral message</label>
-        <textarea id="tpl-referral" className={area} value={referralText} onChange={(e) => setReferral(e.target.value)} />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="tpl-followup" className="text-[13px] font-medium text-ink">Follow-up message</label>
-        <textarea id="tpl-followup" className={cn(area, "min-h-[180px]")} value={followUpText} onChange={(e) => setFollowUp(e.target.value)} />
-      </div>
+    <Card id="templates" title="Message templates" subtitle="Your wording for the copy-ready messages on every job.">
+      <Row>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="tpl-referral" className="text-[13px] font-medium text-ink">Referral message</label>
+          <textarea id="tpl-referral" className={cn(area, "flex-1")} value={referralText} onChange={(e) => setReferral(e.target.value)} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="tpl-followup" className="text-[13px] font-medium text-ink">Follow-up message</label>
+          <textarea id="tpl-followup" className={cn(area, "flex-1")} value={followUpText} onChange={(e) => setFollowUp(e.target.value)} />
+        </div>
+      </Row>
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-medium text-ink">Fill-in fields</span>
         <div className="flex flex-wrap gap-1.5">
@@ -334,9 +381,9 @@ function TemplatesCard({ profile }: { profile: Profile }) {
         </div>
         <p className="text-xs text-ink-muted">[Name] stays blank for you to type. The rest fills in from the job and your profile.</p>
       </div>
-      <div className="flex gap-2">
-        <Button onClick={() => save()} disabled={update.isPending || !d}>Save templates</Button>
+      <div className="flex justify-end gap-2 border-t border-line pt-4">
         <Button variant="ghost" onClick={() => save(true)} disabled={update.isPending || !d}>Reset to default</Button>
+        <Button onClick={() => save()} disabled={update.isPending || !d}>Save templates</Button>
       </div>
     </Card>
   );
@@ -370,9 +417,9 @@ function RemindersCard({ profile }: { profile: Profile }) {
   const radio = "size-[18px] accent-ink";
 
   return (
-    <Card title="Reminders" subtitle="A morning email lists what is due. No email on days with nothing due.">
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-[13px] font-medium text-ink">Reminder channel</legend>
+    <Card id="reminders" title="Reminders" subtitle="A morning email lists what is due. No email on days with nothing due.">
+      <fieldset className="flex flex-wrap gap-x-6 gap-y-3">
+        <legend className="mb-3 text-[13px] font-medium text-ink">Reminder channel</legend>
         {(["email", "none"] as const).map((c) => (
           <label key={c} className="flex items-center gap-2 text-sm text-ink">
             <input type="radio" name="channel" className={radio} checked={profile.reminder_channel === c} onChange={() => save({ reminder_channel: c })} />
@@ -385,18 +432,20 @@ function RemindersCard({ profile }: { profile: Profile }) {
           <span className="rounded-md bg-chip px-2 py-0.5 text-xs font-semibold">Coming soon</span>
         </label>
       </fieldset>
-      <SelectField
-        label="Morning email time"
-        value={time}
-        options={times.map((t) => ({ value: t, label: timeLabel(t) }))}
-        onChange={(t) => save({ reminder_time: `${t}:00` })}
-      />
-      <SelectField
-        label="Timezone"
-        value={profile.timezone}
-        options={zoneList.map((z) => ({ value: z, label: z === "Asia/Kolkata" ? "Asia/Kolkata (IST)" : z }))}
-        onChange={(timezone) => save({ timezone })}
-      />
+      <Row>
+        <SelectField
+          label="Morning email time"
+          value={time}
+          options={times.map((t) => ({ value: t, label: timeLabel(t) }))}
+          onChange={(t) => save({ reminder_time: `${t}:00` })}
+        />
+        <SelectField
+          label="Timezone"
+          value={profile.timezone}
+          options={zoneList.map((z) => ({ value: z, label: z === "Asia/Kolkata" ? "Asia/Kolkata (IST)" : z }))}
+          onChange={(timezone) => save({ timezone })}
+        />
+      </Row>
     </Card>
   );
 }
@@ -424,7 +473,8 @@ function DataCard() {
   }
 
   return (
-    <Card title="Data" danger={confirming}>
+    <Card id="data" title="Data" subtitle="Take your jobs with you, or remove your account." danger={confirming}>
+      <Row>
       <div className="flex flex-col gap-1.5">
         <Button variant="outline" className="w-full" nativeButton={false} render={<a href={`${API_URL}/jobs/export.csv`} />}>
           Export all jobs as CSV
@@ -438,7 +488,9 @@ function DataCard() {
           </Button>
           <p className="text-xs text-ink-muted">Removes your account and all your jobs.</p>
         </div>
-      ) : (
+      ) : null}
+      </Row>
+      {confirming && (
         <div role="alertdialog" aria-labelledby="delete-warning" className="flex flex-col gap-3 rounded-lg border border-[var(--edge-red)] bg-stage-closed-tint p-4">
           <p id="delete-warning" className="flex gap-2 text-sm font-semibold text-destructive">
             <span aria-hidden>⚠</span>
@@ -468,7 +520,7 @@ export default function SettingsPage() {
   }, [profile.data]);
 
   return (
-    <div className="flex max-w-[640px] flex-col gap-4 md:mx-auto">
+    <div className="mx-auto flex max-w-[1040px] flex-col gap-5 md:gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-[28px] font-semibold text-ink md:text-4xl">Settings</h1>
         <p className="text-sm text-ink-muted">Changes here apply to every job.</p>
@@ -476,13 +528,16 @@ export default function SettingsPage() {
       {!profile.data ? (
         <span className="mx-auto mt-10 size-6 animate-spin rounded-full border-2 border-line border-t-ink" />
       ) : (
-        <>
-          <ProfileCard profile={profile.data} />
-          <EmailsCard profile={profile.data} />
-          <TemplatesCard profile={profile.data} />
-          <RemindersCard profile={profile.data} />
-          <DataCard />
-        </>
+        <div className="grid gap-5 md:grid-cols-[190px_minmax(0,1fr)] md:gap-8">
+          <SectionNav />
+          <div className="flex min-w-0 flex-col gap-5 md:gap-6">
+            <ProfileCard profile={profile.data} />
+            <EmailsCard profile={profile.data} />
+            <TemplatesCard profile={profile.data} />
+            <RemindersCard profile={profile.data} />
+            <DataCard />
+          </div>
+        </div>
       )}
     </div>
   );
