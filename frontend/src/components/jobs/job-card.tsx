@@ -39,7 +39,7 @@ function LinkPill({ href, children }: { href: string; children: React.ReactNode 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-full border border-line bg-card px-2.5 py-[5px] text-xs font-medium text-ink hover:bg-page"
+      className="lift rounded-full border border-line bg-card px-2.5 py-[5px] text-xs font-medium text-ink hover:bg-page"
     >
       {children} ↗
     </a>
@@ -49,17 +49,21 @@ function LinkPill({ href, children }: { href: string; children: React.ReactNode 
 function TrackPanel({
   track,
   email,
+  index,
+  count,
   children,
 }: {
   track: "direct" | "referral";
   email: string | null | undefined;
+  index: number;
+  count: number;
   children: React.ReactNode;
 }) {
   const direct = track === "direct";
   return (
     <section
       aria-label={direct ? "Direct apply" : "Referral"}
-      className="overflow-hidden rounded-[10px] border border-line bg-card"
+      className="flex flex-col overflow-hidden rounded-[10px] border border-line bg-card"
     >
       <header
         className={cn(
@@ -72,7 +76,13 @@ function TrackPanel({
         <span className="flex-1" />
         <span className="truncate font-mono text-[11px]">{email ?? "Add email in Settings"}</span>
       </header>
-      <div className="flex flex-col gap-3 p-3">{children}</div>
+      <div className="flex flex-1 flex-col gap-3 p-3">{children}</div>
+      <div className="flex items-center gap-2 border-t border-line px-3 py-2">
+        <MiniRail count={count} index={index} track={track} />
+        <span className="font-mono text-[11px] text-ink-muted">
+          {Math.max(index, 0) + 1} / {count}
+        </span>
+      </div>
     </section>
   );
 }
@@ -225,85 +235,59 @@ export function JobCard({ job, defaultOpen }: { job: Job; defaultOpen?: boolean 
       </button>
       <div id={`job-body-${job.id}`} className="reveal" data-open={open}>
         <div className="reveal-inner">
-      <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 pt-1 md:p-6 md:pt-2">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1.5">
-            <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold", priority.className)}>
-              {priority.text}
+      <div className="stagger flex min-w-0 flex-1 flex-col gap-4 p-4 pt-1 md:p-6 md:pt-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold", priority.className)}>
+            {priority.text}
+          </span>
+          <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold sm:hidden", stage.badge)}>
+            {STAGE_LABELS[job.stage]}
+          </span>
+          {job.emails_reversed && (
+            <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">
+              Emails reversed
             </span>
-            <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold sm:hidden", stage.badge)}>
-              {STAGE_LABELS[job.stage]}
-            </span>
-            {job.emails_reversed && (
-              <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">
-                Emails reversed
-              </span>
-            )}
-          </div>
-          {job.apply_url && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<a href={job.apply_url} target="_blank" rel="noopener noreferrer" />}
-              >
-                Open apply link ↗
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => copyText(job.apply_url!)}>
-                Copy link
-              </Button>
-            </div>
           )}
+          <span className="flex-1" />
+          <button
+            type="button"
+            aria-expanded={editLinkedIn}
+            onClick={() => setEditLinkedIn((v) => !v)}
+            className="press flex items-center gap-1 px-1.5 py-[5px] text-xs font-medium text-ink-muted"
+          >
+            <Icon name={editLinkedIn ? "chevron-down-open" : "edit-linkedin"} size={14} />
+            Edit LinkedIn
+          </button>
         </div>
 
-        {/* LinkedIn helpers: plain links to LinkedIn's own search; the app never acts there */}
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {job.linkedin.company_page && <LinkPill href={job.linkedin.company_page}>Company on LinkedIn</LinkPill>}
-            {job.linkedin.recruiter && (
-              <LinkPill href={job.linkedin.recruiter}>TA: {job.recruiter_name ?? "Recruiter"}</LinkPill>
-            )}
-            <LinkPill href={job.linkedin.find_recruiters}>Find recruiters</LinkPill>
-            <LinkPill href={job.linkedin.find_engineers}>Find engineers for referral</LinkPill>
-            <button
-              type="button"
-              aria-expanded={editLinkedIn}
-              onClick={() => setEditLinkedIn((v) => !v)}
-              className="flex items-center gap-1 px-1.5 py-[5px] text-xs font-medium text-ink-muted"
-            >
-              <Icon name={editLinkedIn ? "chevron-down-open" : "edit-linkedin"} size={14} />
-              Edit LinkedIn
-            </button>
+        {editLinkedIn && (
+          <div className="enter-up grid gap-3 rounded-lg bg-page p-3 md:grid-cols-3">
+            <AutosaveInput
+              label="Company LinkedIn page"
+              type="url"
+              placeholder="https://linkedin.com/company/…"
+              value={job.company_linkedin_url}
+              onSave={(v) => save({ company_linkedin_url: v })}
+            />
+            <AutosaveInput
+              label="Recruiter name"
+              value={job.recruiter_name}
+              onSave={(v) => save({ recruiter_name: v })}
+            />
+            <AutosaveInput
+              label="Recruiter profile link"
+              type="url"
+              placeholder="https://linkedin.com/in/…"
+              value={job.recruiter_linkedin_url}
+              onSave={(v) => save({ recruiter_linkedin_url: v })}
+            />
           </div>
-          {editLinkedIn && (
-            <div className="grid gap-3 rounded-lg bg-page p-3 md:grid-cols-3">
-              <AutosaveInput
-                label="Company LinkedIn page"
-                type="url"
-                placeholder="https://linkedin.com/company/…"
-                value={job.company_linkedin_url}
-                onSave={(v) => save({ company_linkedin_url: v })}
-              />
-              <AutosaveInput
-                label="Recruiter name"
-                value={job.recruiter_name}
-                onSave={(v) => save({ recruiter_name: v })}
-              />
-              <AutosaveInput
-                label="Recruiter profile link"
-                type="url"
-                placeholder="https://linkedin.com/in/…"
-                value={job.recruiter_linkedin_url}
-                onSave={(v) => save({ recruiter_linkedin_url: v })}
-              />
-            </div>
-          )}
-        </div>
+        )}
 
-        {/* Two tracks: stacked on phones, side by side on desktop (referral slightly wider) */}
-        <div className="grid gap-3 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] md:items-start md:gap-4">
-          <TrackPanel track="direct" email={job.emails.direct}>
+        {/* Two equal tracks. Each holds its own status, its own actions (LinkedIn links are plain
+            links to LinkedIn's own search; the app never acts there) and its own progress rail. */}
+        <div className="grid gap-3 md:grid-cols-2 md:items-stretch md:gap-4">
+          <TrackPanel track="direct" email={job.emails.direct} index={directKeys.indexOf(job.direct_status)} count={directKeys.length}>
             <div className="grid grid-cols-2 gap-3">
               <SelectField
                 label="Status"
@@ -314,8 +298,30 @@ export function JobCard({ job, defaultOpen }: { job: Job; defaultOpen?: boolean 
               />
               <DateField label="Applied on" value={job.applied_on} onChange={(applied_on) => save({ applied_on })} />
             </div>
+            {job.apply_url && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  nativeButton={false}
+                  render={<a href={job.apply_url} target="_blank" rel="noopener noreferrer" />}
+                >
+                  Open apply link ↗
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => copyText(job.apply_url!)}>
+                  Copy link
+                </Button>
+              </div>
+            )}
+            <div className="mt-auto flex flex-wrap items-center gap-1.5">
+              {job.linkedin.company_page && <LinkPill href={job.linkedin.company_page}>Company on LinkedIn</LinkPill>}
+              {job.linkedin.recruiter && (
+                <LinkPill href={job.linkedin.recruiter}>TA: {job.recruiter_name ?? "Recruiter"}</LinkPill>
+              )}
+              <LinkPill href={job.linkedin.find_recruiters}>Find recruiters</LinkPill>
+            </div>
           </TrackPanel>
-          <TrackPanel track="referral" email={job.emails.referral}>
+          <TrackPanel track="referral" email={job.emails.referral} index={referralKeys.indexOf(job.referral_status)} count={referralKeys.length}>
             <div className="grid grid-cols-2 gap-3">
               <SelectField
                 label="Status"
@@ -332,9 +338,16 @@ export function JobCard({ job, defaultOpen }: { job: Job; defaultOpen?: boolean 
               value={job.referral_contact}
               onSave={(v) => save({ referral_contact: v })}
             />
-            <MessagePanel title="Referral message" message={job.messages.referral} />
-            <MessagePanel title="Follow-up message" message={job.messages.follow_up} />
+            <div className="mt-auto flex flex-wrap items-center gap-1.5">
+              <LinkPill href={job.linkedin.find_engineers}>Find engineers for referral</LinkPill>
+            </div>
           </TrackPanel>
+        </div>
+
+        {/* Messages sit under both tracks so neither column grows taller than the other. */}
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+          <MessagePanel title="Referral message" message={job.messages.referral} />
+          <MessagePanel title="Follow-up message" message={job.messages.follow_up} />
         </div>
 
         {/* Extras: priority, follow-up date, notes */}
