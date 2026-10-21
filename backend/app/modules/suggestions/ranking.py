@@ -1,9 +1,9 @@
-"""Score one opening against one profile on the three things job seekers search by.
+"""Filter and rank openings for one profile with plain rules (no model).
 
-In order of weight: the role (45%), the years of experience against the level the title implies
-(35%), and the location (20%). Openings only carry a title, a team and a location, so the level is
-read from the title. `score_opening` returns None for an opening that must not be suggested at all
-(wrong kind of role, or a level far from the person's years).
+Gates, in order: the role, the years of experience against the level the title implies, then the
+location. An opening that fails any gate is never suggested. Survivors are ranked by how many of
+the profile's skills they mention, then by a combined score (role 45%, experience 35%, location
+20%). Openings only carry a title, a team and a location, so the level is read from the title.
 """
 
 import re
@@ -146,7 +146,14 @@ def experience_fit(years: float, band: tuple[float, float]) -> float | None:
 # ---------------------------------------------------------------- role and location
 
 
-def role_fit(opening: _OpeningLike, profile: _ProfileLike, software: bool) -> float | None:
+def role_fit(
+    opening: _OpeningLike, profile: _ProfileLike, software: bool, strict: bool = True
+) -> float | None:
+    """0 to 1 for how well the title matches the target role. None when it is the wrong role.
+
+    Strict: a software target role with distinctive words (backend, data, fullstack...) needs at
+    least one of them in the title or team. Relaxed: any engineering title passes.
+    """
     title_words = _tokens(opening.title) | _tokens(opening.department)
     if not software:
         words = _role_words(profile)
@@ -157,10 +164,23 @@ def role_fit(opening: _OpeningLike, profile: _ProfileLike, software: bool) -> fl
     wanted = {
         w for w in _tokens(profile.target_role) if w not in GENERIC_SOFTWARE and not w.isdigit()
     }
-    share = len(wanted & title_words) / len(wanted) if wanted else 0.5
-    text = f" {_norm(opening.title)} {_norm(opening.department)} "
-    hits = sum(1 for s in profile.skills if f" {_norm(s).strip()} " in text)
-    return 0.35 + 0.45 * share + 0.20 * min(1.0, hits / 2)
+    if not wanted:
+        return 0.7
+    matched = wanted & title_words
+    if strict and not matched:
+        return None
+    return 0.4 + 0.6 * len(matched) / len(wanted)
+
+
+def matched_skills(opening: _OpeningLike, profile: _ProfileLike) -> tuple[str, ...]:
+    """The profile's skills that appear in the title or team, in the profile's order."""
+    text = f"{_norm(opening.title)} {_norm(opening.department)}"
+
+    def mentioned(skill: str) -> bool:
+        pattern = rf"(?<![a-z0-9+#.]){re.escape(_norm(skill).strip())}(?![a-z0-9+#])"
+        return bool(re.search(pattern, text))
+
+    return tuple(s for s in profile.skills if s.strip() and mentioned(s))
 
 
 def location_fit(location: str | None, cities: list[str]) -> tuple[float, str] | None:
@@ -185,18 +205,40 @@ class Fit:
     role: float
     experience: float
     location: float
-    total: float  # 0 to 100
+    total: float  # 0 to 100, role 45% + experience 35% + location 20%
     level: str
     place: str
+    skills: tuple[str, ...] = ()
+    relaxed: bool = False  # passed only because the role gate was loosened
+
+    @property
+    def sort_key(self) -> tuple[bool, int, float]:
+        """Strict role matches first, then more matched skills, then the combined score."""
+        return (not self.relaxed, len(self.skills), self.total)
 
     def reason(self) -> str:
-        """A short deterministic reason, used when the model gives none."""
-        return f"Fits your role, {self.level}, in {self.place}."[:110]
+        parts = ["Role match" if not self.relaxed else "Related role"]
+        if self.skills:
+            parts.append(", ".join(self.skills[:3]))
+        parts += [self.level, self.place]
+        return " · ".join(parts)[:110]
 
 
-def score_opening(opening: _OpeningLike, profile: _ProfileLike) -> Fit | None:
+def score_opening(
+    opening: _OpeningLike, profile: _ProfileLike, allow_relaxed: bool = False
+) -> Fit | None:
+    """Gate in order: role, years of experience, location. Then note the matched skills.
+
+    Returns None when any gate fails. With allow_relaxed, a title that fails only the strict role
+    gate (an engineering title without the target role's distinctive word) still passes, marked
+    `relaxed`, so callers can use it only when strict matches run short.
+    """
     software = is_software_profile(profile)
+    relaxed = False
     role = role_fit(opening, profile, software)
+    if role is None and allow_relaxed:
+        role = role_fit(opening, profile, software, strict=False)
+        relaxed = role is not None
     if role is None:
         return None
     lo, hi, level = level_of(opening.title, software)
@@ -211,4 +253,13 @@ def score_opening(opening: _OpeningLike, profile: _ProfileLike) -> Fit | None:
         return None
     location, place_name = place
     total = 100 * (W_ROLE * role + W_EXPERIENCE * experience + W_LOCATION * location)
-    return Fit(role, experience, location, round(total, 1), level, place_name)
+    return Fit(
+        role,
+        experience,
+        location,
+        round(total, 1),
+        level,
+        place_name,
+        matched_skills(opening, profile),
+        relaxed,
+    )

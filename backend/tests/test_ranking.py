@@ -44,11 +44,47 @@ def test_experience_fit_falls_off_and_cuts_off():
     assert experience_fit(8, (0, 2)) is None  # far above the role
 
 
-def test_role_is_the_biggest_weight():
+def test_role_is_a_strict_gate():
     p = profile(role="Backend Engineer")
-    backend = score_opening(opening("Backend Engineer"), p)
-    frontend = score_opening(opening("Frontend Engineer"), p)
-    assert backend and frontend and backend.total > frontend.total
+    assert score_opening(opening("Backend Engineer"), p)
+    assert score_opening(opening("Frontend Engineer"), p) is None
+    assert score_opening(opening("Software Engineer"), p) is None
+
+
+def test_relaxed_role_passes_only_when_asked():
+    p = profile(role="Backend Engineer")
+    fit = score_opening(opening("Software Engineer"), p, allow_relaxed=True)
+    assert fit and fit.relaxed
+    strict = score_opening(opening("Backend Engineer"), p, allow_relaxed=True)
+    assert strict and not strict.relaxed and strict.sort_key > fit.sort_key
+
+
+def test_generic_target_role_accepts_any_engineering_title():
+    p = profile(role="Software Engineer")
+    assert score_opening(opening("Backend Engineer"), p)
+    assert score_opening(opening("Product Manager"), p) is None
+
+
+def test_skills_rank_the_survivors():
+    p = profile(role="Backend Engineer", skills=("Python", "Go"))
+    plain = score_opening(opening("Backend Engineer"), p)
+    skilled = score_opening(opening("Backend Engineer (Python, Go)"), p)
+    one = score_opening(opening("Backend Engineer, Python"), p)
+    assert plain and skilled and one
+    assert skilled.skills == ("Python", "Go")
+    assert skilled.sort_key > one.sort_key > plain.sort_key
+
+
+def test_skills_never_rescue_a_failed_gate():
+    p = profile(role="Backend Engineer", skills=("Python",), years=1)
+    assert score_opening(opening("Senior Backend Engineer, Python"), p) is None
+    assert score_opening(opening("Backend Engineer, Python", "London"), p) is None
+
+
+def test_reason_names_role_skills_level_and_place():
+    p = profile(role="Backend Engineer", skills=("Python",))
+    fit = score_opening(opening("Backend Engineer II, Python"), p)
+    assert fit and fit.reason() == "Role match · Python · level 2 · Bengaluru"
 
 
 def test_years_decide_between_levels():
