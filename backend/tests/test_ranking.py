@@ -122,3 +122,19 @@ def test_non_software_role_needs_a_word_match():
 def test_missing_years_assume_a_junior_profile():
     assert score_opening(opening("Senior Backend Engineer"), profile(years=None)) is None
     assert score_opening(opening("Backend Engineer"), profile(years=None)) is not None
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Software Engineer (C and Python, Linux OS, networking domain, "
+        "L2/L3 forwarding protocols| 4-9 Years))",
+        "Software Development Engineer \u2013 C/C++ | Linux | Networking Protocols | "
+        "Layer 2/Layer 3 | 8-12 Yrs",
+    ],
+)
+def test_year_ranges_in_titles_drop_roles_for_a_one_year_profile(title):
+    p = profile(role="Software Engineer", years=1, skills=("Python",))
+    assert level_of(title)[:2] in {(4, 9), (8, 12)}
+    assert score_opening(opening(title, "Bangalore, India"), p, allow_relaxed=True) is None
+    assert score_opening(opening(title, "Bangalore, India"), profile(years=6), allow_relaxed=True)

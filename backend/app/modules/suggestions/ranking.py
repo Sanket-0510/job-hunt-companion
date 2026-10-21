@@ -93,7 +93,9 @@ def _role_words(profile: _ProfileLike) -> set[str]:
 
 # ---------------------------------------------------------------- level from the title
 
-_YEARS_IN_TITLE = re.compile(r"\b(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?(?:years?|yrs?|yoe)\b", re.I)
+_YEARS_IN_TITLE = re.compile(
+    r"\b(\d{1,2})\s*\+?\s*(?:[-–]\s*(\d{1,2})\s*)?(?:years?|yrs?|yoe)\b", re.I
+)
 _SUFFIX_LEVEL = re.compile(
     r"\b(?:engineer|developer|sde|swe|programmer|analyst|designer)\s*[-:]?\s*(iii|ii|i|3|2|1)\b",
     re.I,
@@ -113,8 +115,10 @@ _JUNIOR = re.compile(r"\b(junior|jr\.?|associate|entry[- ]level)\b", re.I)
 def level_of(title: str, software: bool = True) -> tuple[float, float, str]:
     """(min years, max years, label) a title implies. Plain titles fit 1 to 5 years."""
     if m := _YEARS_IN_TITLE.search(title):
-        n = int(m.group(1))
-        return n, n + 3, f"asks {n}+ years"
+        lo = int(m.group(1))
+        if m.group(2):
+            return lo, int(m.group(2)), f"asks {lo}-{m.group(2)} years"
+        return lo, lo + 3, f"asks {lo}+ years"
     if _ENTRY.search(title):
         return 0, 0, "entry level"
     if _TOP.search(title):
