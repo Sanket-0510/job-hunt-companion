@@ -425,3 +425,46 @@
     border-color: var(--rail);
   }
 }
+
+/* Admin and onboarding motion. Transform and opacity only. */
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.grow-x {
+  transform-origin: left;
+  animation: grow-x 600ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+}
+.grow-y {
+  transform-origin: bottom;
+  animation: grow-y 500ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+}
+
+/* Onboarding step change: new step slides in from the side it came from. */
+@keyframes step-in-fwd {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes step-in-back {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: none; }
+}
+.step-fwd { animation: step-in-fwd 280ms cubic-bezier(0.23, 1, 0.32, 1) backwards; }
+.step-back { animation: step-in-back 280ms cubic-bezier(0.23, 1, 0.32, 1) backwards; }
+
+/* Fields inside a step rise in one after another. */
+.step-stagger > * { animation: enter-up 260ms cubic-bezier(0.23, 1, 0.32, 1) backwards; }
+.step-stagger > *:nth-child(1) { animation-delay: 40ms; }
+.step-stagger > *:nth-child(2) { animation-delay: 90ms; }
+.step-stagger > *:nth-child(3) { animation-delay: 140ms; }
+.step-stagger > *:nth-child(4) { animation-delay: 190ms; }
+.step-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.step-stagger > *:nth-child(6) { animation-delay: 290ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-x, .grow-y, .step-fwd, .step-back, .step-stagger > * { animation: none; }
+}

@@ -35,22 +35,40 @@ const STEPS = ["Resume", "About you", "How you apply"] as const;
 
 // ---------------------------------------------------------------- layout
 
+/** Three nodes on one rail: done steps fill with a check, the current one is ringed. */
 function Progress({ step }: { step: number }) {
   return (
-    <div className="flex flex-col gap-2.5">
-      <div aria-hidden className="relative h-1.5 overflow-hidden rounded-full bg-line">
-        <span
-          className="absolute inset-0 origin-left rounded-full bg-direct transition-transform duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none"
-          style={{ transform: `scaleX(${(step + 1) / STEPS.length})` }}
-        />
-      </div>
-      <p className="flex gap-2 text-xs">
-        <span className="font-mono text-ink-muted">
-          Step {step + 1} of {STEPS.length}
-        </span>
-        <span className="font-semibold text-ink">{STEPS[step]}</span>
-      </p>
-    </div>
+    <ol aria-label="Progress" className="flex items-start">
+      {STEPS.map((label, i) => {
+        const done = i < step;
+        const current = i === step;
+        return (
+          <li key={label} aria-current={current ? "step" : undefined} className="flex flex-1 items-start last:flex-none">
+            <div className="flex flex-col items-center gap-1.5">
+              <span
+                className={cn(
+                  "flex size-7 items-center justify-center rounded-full border-2 font-mono text-xs font-semibold transition-[background-color,border-color,color,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                  done && "border-direct bg-direct text-white",
+                  current && "scale-110 border-direct bg-card text-direct shadow-[0_0_0_4px_var(--direct-tint)]",
+                  !done && !current && "border-line bg-card text-ink-muted",
+                )}
+              >
+                {done ? "✓" : i + 1}
+              </span>
+              <span className={cn("text-xs whitespace-nowrap", current ? "font-semibold text-ink" : "text-ink-muted")}>{label}</span>
+            </div>
+            {i < STEPS.length - 1 && (
+              <span aria-hidden className="relative mx-2 mt-[13px] h-0.5 flex-1 overflow-hidden rounded-full bg-line">
+                <span
+                  className="absolute inset-0 origin-left bg-direct transition-transform duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none"
+                  style={{ transform: `scaleX(${done ? 1 : 0})` }}
+                />
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -67,7 +85,7 @@ function Heading({ title, subtitle }: { title: string; subtitle: string }) {
 function ActionBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="sticky bottom-0 -mx-4 mt-auto border-t border-line bg-card px-4 pt-3 pb-[max(28px,env(safe-area-inset-bottom))] md:static md:mx-0 md:mb-10 md:rounded-xl md:border md:pb-3">
-      <div className="mx-auto flex max-w-[560px] items-center gap-2">{children}</div>
+      <div className="mx-auto flex max-w-[680px] items-center gap-2">{children}</div>
     </div>
   );
 }
@@ -156,7 +174,7 @@ function ResumeStep({
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="step-stagger flex flex-col gap-6">
         <Heading
           title="Start with your resume"
           subtitle="We read it and fill in your details. You can change anything before saving."
@@ -183,11 +201,11 @@ function ResumeStep({
               if (f) start(f);
             }}
             className={cn(
-              "flex flex-col items-center gap-2.5 rounded-[14px] border-[1.5px] border-dashed bg-card px-5 py-8 text-center",
-              dragging ? "border-ink bg-page" : "border-field",
+              "flex flex-col items-center gap-2.5 rounded-[14px] border-[1.5px] border-dashed bg-card px-5 py-10 text-center transition-[transform,border-color,background-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+              dragging ? "scale-[1.02] border-direct bg-direct-tint" : "border-field",
             )}
           >
-            <span className="flex size-11 items-center justify-center rounded-full bg-chip text-ink">
+            <span className={cn("flex size-12 items-center justify-center rounded-full bg-chip text-ink transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]", dragging && "-translate-y-1")}>
               <Icon name="upload" size={22} />
             </span>
             <p className="text-[15px] font-semibold text-ink">Drop your resume PDF here</p>
@@ -376,7 +394,7 @@ function AboutStep({
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="step-stagger flex flex-col gap-5">
         <Heading title="About you" subtitle="Check what we found and fix anything that is off." />
         {fromResume && (
           <p className="flex gap-2.5 rounded-xl bg-direct-tint px-4 py-3 text-sm font-medium text-direct">
@@ -384,51 +402,55 @@ function AboutStep({
             Filled in from your resume. Review each field before you continue.
           </p>
         )}
-        <Field label="Full name" value={a.full_name} onChange={(e) => set("full_name", e.target.value)} error={errors.full_name} />
-        <Field
-          label="Target role"
-          value={a.target_role}
-          onChange={(e) => set("target_role", e.target.value)}
-          helper="For example, SDE-1 Backend"
-          error={errors.target_role}
-        />
-        <SelectField
-          label="Years of experience"
-          value={a.years_experience}
-          options={[{ value: "", label: "Choose" }, ...years.map((y) => ({ value: y, label: y === "1" ? "1 year" : `${y} years` }))]}
-          onChange={(v) => set("years_experience", v)}
-        />
-        <TagInput
-          label="Preferred cities"
-          values={a.preferred_cities}
-          onChange={(v) => set("preferred_cities", v)}
-          placeholder="Add a city"
-          helper="The first city is your preferred one."
-          starFirst
-        />
-        <TagInput label="Skills" values={a.skills} onChange={(v) => set("skills", v)} placeholder="Add a skill" />
-        <TagInput
-          label="Past companies"
-          values={a.past_companies.map((c) => c.company)}
-          onChange={(names) =>
-            set(
-              "past_companies",
-              names.map((n) => a.past_companies.find((c) => c.company === n) ?? { company: n }),
-            )
-          }
-          placeholder="Add a company"
-          max={30}
-        />
-        <Field label="Education" value={a.education} onChange={(e) => set("education", e.target.value)} placeholder="B.E. Computer Engineering, 2021" />
-        <Field
-          label="LinkedIn URL"
-          type="url"
-          inputMode="url"
-          value={a.linkedin_url}
-          onChange={(e) => set("linkedin_url", e.target.value)}
-          placeholder="linkedin.com/in/…"
-          error={errors.linkedin_url && "Enter a full link, e.g. linkedin.com/in/you"}
-        />
+        <div className="grid gap-5 rounded-xl border border-line bg-card p-4 md:grid-cols-2 md:p-5">
+          <Field label="Full name" value={a.full_name} onChange={(e) => set("full_name", e.target.value)} error={errors.full_name} />
+          <Field
+            label="Target role"
+            value={a.target_role}
+            onChange={(e) => set("target_role", e.target.value)}
+            helper="For example, SDE-1 Backend"
+            error={errors.target_role}
+          />
+          <SelectField
+            label="Years of experience"
+            value={a.years_experience}
+            options={[{ value: "", label: "Choose" }, ...years.map((y) => ({ value: y, label: y === "1" ? "1 year" : `${y} years` }))]}
+            onChange={(v) => set("years_experience", v)}
+          />
+          <Field
+            label="LinkedIn URL"
+            type="url"
+            inputMode="url"
+            value={a.linkedin_url}
+            onChange={(e) => set("linkedin_url", e.target.value)}
+            placeholder="linkedin.com/in/…"
+            error={errors.linkedin_url && "Enter a full link, e.g. linkedin.com/in/you"}
+          />
+        </div>
+        <div className="grid gap-5 rounded-xl border border-line bg-card p-4 md:grid-cols-2 md:p-5">
+          <TagInput
+            label="Preferred cities"
+            values={a.preferred_cities}
+            onChange={(v) => set("preferred_cities", v)}
+            placeholder="Add a city"
+            helper="The first city is your preferred one."
+            starFirst
+          />
+          <TagInput label="Skills" values={a.skills} onChange={(v) => set("skills", v)} placeholder="Add a skill" />
+          <TagInput
+            label="Past companies"
+            values={a.past_companies.map((c) => c.company)}
+            onChange={(names) =>
+              set(
+                "past_companies",
+                names.map((n) => a.past_companies.find((c) => c.company === n) ?? { company: n }),
+              )
+            }
+            placeholder="Add a company"
+            max={30}
+          />
+          <Field label="Education" value={a.education} onChange={(e) => set("education", e.target.value)} placeholder="B.E. Computer Engineering, 2021" />
+        </div>
         {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
       </div>
       <ActionBar>
@@ -448,6 +470,20 @@ function AboutStep({
 }
 
 // ---------------------------------------------------------------- step 3: how you apply
+
+/** Tinted card for one track, matching the track panels on a job. */
+function TrackBox({ track, children }: { track: "direct" | "referral"; children: React.ReactNode }) {
+  const direct = track === "direct";
+  return (
+    <section className="overflow-hidden rounded-xl border border-line bg-card">
+      <header className={cn("flex items-center gap-2 px-4 py-2.5", direct ? "bg-direct-tint text-direct" : "bg-referral-tint text-referral")}>
+        <span aria-hidden className={cn("size-2 rounded-full", direct ? "bg-direct" : "bg-referral")} />
+        <span className="text-[13px] font-semibold">{direct ? "Direct apply" : "Referral"}</span>
+      </header>
+      <div className="p-4">{children}</div>
+    </section>
+  );
+}
 
 function ApplyStep({ profile, driveLink, onBack }: { profile?: Profile; driveLink: string; onBack: () => void }) {
   const router = useRouter();
@@ -485,50 +521,61 @@ function ApplyStep({ profile, driveLink, onBack }: { profile?: Profile; driveLin
   const radio = "size-[18px] accent-ink";
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="step-stagger flex flex-col gap-5">
         <Heading title="How you apply" subtitle="Tell us which email you use for each track. We show it on every job." />
-        <Field
-          label="Email for direct applies"
-          type="email"
-          className="[&_input]:font-mono"
-          value={direct}
-          onChange={(e) => setDirect(e.target.value)}
-          error={errors.direct_email && "Enter a valid email address."}
-        />
-        <Field
-          label="Email for referrals"
-          type="email"
-          className="[&_input]:font-mono"
-          value={referral}
-          onChange={(e) => setReferral(e.target.value)}
-          error={errors.referral_email && "Enter a valid email address."}
-        />
-        <Field
-          label="WhatsApp number (optional)"
-          type="tel"
-          inputMode="tel"
-          placeholder="+91 98xxx xxxxx"
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
-          helper="We'll use this when WhatsApp reminders launch"
-          error={errors.whatsapp_number}
-        />
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-2 text-[13px] font-medium text-ink">Reminder channel</legend>
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input type="radio" name="channel" className={radio} checked={channel === "email"} onChange={() => setChannel("email")} />
-            Email
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input type="radio" name="channel" className={radio} checked={channel === "none"} onChange={() => setChannel("none")} />
-            None
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink-muted opacity-60">
-            <input type="radio" name="channel" className={radio} disabled />
-            WhatsApp
-            <span className="rounded-md bg-chip px-2 py-0.5 text-xs font-semibold">Coming soon</span>
-          </label>
-        </fieldset>
+        <div className="grid gap-4 md:grid-cols-2">
+          <TrackBox track="direct">
+            <Field
+              label="Email for direct applies"
+              type="email"
+              className="[&_input]:font-mono"
+              value={direct}
+              onChange={(e) => setDirect(e.target.value)}
+              error={errors.direct_email && "Enter a valid email address."}
+            />
+          </TrackBox>
+          <TrackBox track="referral">
+            <Field
+              label="Email for referrals"
+              type="email"
+              className="[&_input]:font-mono"
+              value={referral}
+              onChange={(e) => setReferral(e.target.value)}
+              error={errors.referral_email && "Enter a valid email address."}
+            />
+          </TrackBox>
+        </div>
+        <div className="flex flex-col gap-5 rounded-xl border border-line bg-card p-4 md:p-5">
+          <Field
+            label="WhatsApp number (optional)"
+            type="tel"
+            inputMode="tel"
+            placeholder="+91 98xxx xxxxx"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            helper="We'll use this when WhatsApp reminders launch"
+            error={errors.whatsapp_number}
+          />
+          <fieldset className="flex flex-col gap-2.5">
+            <legend className="mb-1 text-[13px] font-medium text-ink">Reminder channel</legend>
+            <div className="grid gap-2.5 sm:grid-cols-3">
+              {(["email", "none"] as const).map((c) => (
+                <label
+                  key={c}
+                  className="press flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm text-ink transition-colors has-[:checked]:border-direct has-[:checked]:bg-direct-tint"
+                >
+                  <input type="radio" name="channel" className={radio} checked={channel === c} onChange={() => setChannel(c)} />
+                  {c === "email" ? "Email" : "None"}
+                </label>
+              ))}
+              <label className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm text-ink-muted opacity-60">
+                <input type="radio" name="channel" className={radio} disabled />
+                WhatsApp
+                <span className="rounded-md bg-chip px-2 py-0.5 text-xs font-semibold">Soon</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
         {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
       </div>
       <ActionBar>
@@ -552,7 +599,12 @@ function ApplyStep({ profile, driveLink, onBack }: { profile?: Profile; driveLin
 function Onboarding() {
   const profile = useProfile();
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const [step, setStepRaw] = useState(0);
+  const [dir, setDir] = useState<"fwd" | "back">("fwd");
+  const setStep = (n: number) => {
+    setDir(n >= step ? "fwd" : "back");
+    setStepRaw(n);
+  };
   const [parsed, setParsed] = useState<Parsed | null>(null);
   const [driveLink, setDriveLink] = useState("");
   const [aboutKey, setAboutKey] = useState(0);
@@ -573,11 +625,13 @@ function Onboarding() {
         <span className="flex-1" />
         <AvatarMenu />
       </header>
-      <main className="mx-auto flex w-full max-w-[560px] flex-1 flex-col gap-6 px-4 pt-5 md:pt-10">
+      <main className="mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-6 px-4 pt-5 md:pt-10">
         <Progress step={step} />
         {!profile.data ? (
           <span className="mx-auto size-6 animate-spin rounded-full border-2 border-line border-t-ink" />
-        ) : step === 0 ? (
+        ) : (
+          <div key={step} className={cn("flex flex-1 flex-col gap-6", dir === "fwd" ? "step-fwd" : "step-back")}>
+            {step === 0 ? (
           <ResumeStep
             driveLink={driveLink}
             setDriveLink={setDriveLink}
@@ -587,7 +641,7 @@ function Onboarding() {
             }}
             onNext={() => setStep(1)}
           />
-        ) : step === 1 ? (
+            ) : step === 1 ? (
           <AboutStep
             key={aboutKey}
             initial={aboutFrom(profile.data, parsed)}
@@ -595,8 +649,10 @@ function Onboarding() {
             onBack={() => setStep(0)}
             onNext={() => setStep(2)}
           />
-        ) : (
+            ) : (
           <ApplyStep profile={profile.data} driveLink={driveLink} onBack={() => setStep(1)} />
+            )}
+          </div>
         )}
       </main>
     </div>
