@@ -111,9 +111,32 @@ function RemoveButton({ job }: { job: Job }) {
   );
 }
 
-export function JobCard({ job }: { job: Job }) {
+/** Tiny progress rail for a header row: one dot per status, filled up to the current one. */
+function MiniRail({ count, index, track }: { count: number; index: number; track: "direct" | "referral" }) {
+  return (
+    <span aria-hidden className="flex items-center gap-1">
+      {Array.from({ length: count }, (_, i) => (
+        <span
+          key={i}
+          className={cn(
+            "size-2 rounded-full transition-colors duration-200",
+            i <= index ? (track === "direct" ? "bg-direct" : "bg-referral") : "bg-line",
+          )}
+        />
+      ))}
+    </span>
+  );
+}
+
+export function JobCard({ job, defaultOpen }: { job: Job; defaultOpen?: boolean }) {
   const update = useUpdateJob();
   const [editLinkedIn, setEditLinkedIn] = useState(false);
+  // Collapsed by default so the board scans quickly; a #job-id link from the dashboard opens it.
+  const [open, setOpen] = useState(
+    () => defaultOpen ?? (typeof window !== "undefined" && window.location.hash === `#job-${job.id}`),
+  );
+  const directKeys = Object.keys(DIRECT_LABELS);
+  const referralKeys = Object.keys(REFERRAL_LABELS);
   const closed = job.stage === "closed";
   const stage = STAGE_STYLES[job.stage];
   const priority = PRIORITY_BADGE[job.priority];
@@ -144,55 +167,94 @@ export function JobCard({ job }: { job: Job }) {
     <article
       id={`job-${job.id}`}
       className={cn(
-        "flex scroll-mt-24 overflow-hidden rounded-xl border border-line bg-card transition-opacity",
+        "scroll-mt-24 overflow-hidden rounded-xl border border-line bg-card transition-opacity",
         closed && "opacity-55 focus-within:opacity-100 hover:opacity-100",
       )}
     >
-      <span aria-hidden className={cn("w-[5px] shrink-0", stage.stripe)} />
-      <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 md:p-6">
-        {/* Top: company, role, badges, apply actions */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-start">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-xl font-semibold text-ink">{job.company}</h3>
-              <span className="flex-1" />
-              <span className={cn("shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold md:hidden", stage.badge)}>
-                {STAGE_LABELS[job.stage]}
-              </span>
-            </div>
-            <p className="text-[15px] font-medium text-ink">{job.role}</p>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold", priority.className)}>
-                {priority.text}
-              </span>
-              {job.emails_reversed && (
-                <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">
-                  Emails reversed
-                </span>
-              )}
-              {meta && <span className="text-[13px] text-ink-muted">{meta}</span>}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={cn("hidden rounded-md px-2 py-0.5 text-xs font-semibold md:inline", stage.badge)}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={`job-body-${job.id}`}
+        onClick={() => setOpen((v) => !v)}
+        className="flex min-h-[72px] w-full cursor-pointer items-center gap-4 px-4 py-3 text-left md:px-5"
+      >
+        <span
+          aria-hidden
+          className="flex size-10 flex-none items-center justify-center rounded-xl bg-chip font-heading text-lg font-bold text-ink"
+        >
+          {job.company.charAt(0).toUpperCase()}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-base font-semibold text-ink">{job.company}</span>
+          <span className="block truncate text-sm text-ink-muted">
+            {job.role}
+            {meta ? ` · ${meta}` : ""}
+          </span>
+        </span>
+        <span className="hidden flex-none flex-col gap-1.5 md:flex">
+          <MiniRail count={directKeys.length} index={directKeys.indexOf(job.direct_status)} track="direct" />
+          <MiniRail count={referralKeys.length} index={referralKeys.indexOf(job.referral_status)} track="referral" />
+        </span>
+        <span className={cn("hidden flex-none rounded-md px-2 py-0.5 text-xs font-semibold sm:inline", stage.badge)}>
+          {STAGE_LABELS[job.stage]}
+        </span>
+        {job.is_due ? (
+          <span className="flex-none rounded-full bg-due-tint px-2.5 py-1 font-mono text-xs font-medium text-due">
+            Follow-up due
+          </span>
+        ) : job.follow_up_date ? (
+          <span className="hidden flex-none rounded-full bg-chip px-2.5 py-1 font-mono text-xs text-ink-muted lg:inline">
+            {shortDate(job.follow_up_date)}
+          </span>
+        ) : null}
+        <svg
+          aria-hidden
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={cn(
+            "size-4 flex-none text-ink-muted transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+            open && "rotate-180",
+          )}
+        >
+          <path d="M3 6l5 5 5-5" />
+        </svg>
+      </button>
+      <div id={`job-body-${job.id}`} className="reveal" data-open={open}>
+        <div className="reveal-inner">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 pt-1 md:p-6 md:pt-2">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1.5">
+            <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold", priority.className)}>
+              {priority.text}
+            </span>
+            <span className={cn("rounded-md px-2 py-0.5 text-xs font-semibold sm:hidden", stage.badge)}>
               {STAGE_LABELS[job.stage]}
             </span>
-            {job.apply_url && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  nativeButton={false}
-                  render={<a href={job.apply_url} target="_blank" rel="noopener noreferrer" />}
-                >
-                  Open apply link ↗
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => copyText(job.apply_url!)}>
-                  Copy link
-                </Button>
-              </>
+            {job.emails_reversed && (
+              <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">
+                Emails reversed
+              </span>
             )}
           </div>
+          {job.apply_url && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={<a href={job.apply_url} target="_blank" rel="noopener noreferrer" />}
+              >
+                Open apply link ↗
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => copyText(job.apply_url!)}>
+                Copy link
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* LinkedIn helpers: plain links to LinkedIn's own search; the app never acts there */}
@@ -306,6 +368,8 @@ export function JobCard({ job }: { job: Job }) {
             onChange={(emails_reversed) => save({ emails_reversed })}
           />
           <RemoveButton job={job} />
+        </div>
+      </div>
         </div>
       </div>
     </article>

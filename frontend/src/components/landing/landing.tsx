@@ -6,101 +6,10 @@ import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { JobCard } from "@/components/jobs/job-card";
 import { PipelineCounts } from "@/components/jobs/pipeline-counts";
+import { RailsHero, TrackDemo } from "@/components/landing/rails";
 import { Button } from "@/components/ui/button";
 import type { Job, PipelineCounts as Counts } from "@/lib/queries";
 import { cn } from "@/lib/utils";
-
-// ---------------------------------------------------------------- hero visual
-
-type Step = { label: string; state: "done" | "current" | "todo" };
-
-/** One track drawn as a rail of steps (Figma "Two tracks visual"). */
-function Rail({ track, steps }: { track: "direct" | "referral"; steps: Step[] }) {
-  const color = track === "direct" ? "bg-direct" : "bg-referral";
-  const text = track === "direct" ? "text-direct" : "text-referral";
-  const ring = track === "direct" ? "border-direct-tint" : "border-referral-tint";
-  return (
-    <div className="flex flex-col gap-3">
-      <p className={cn("flex items-center gap-2 text-[13px] font-semibold", text)}>
-        <span aria-hidden className={cn("size-2 rounded-full", color)} />
-        {track === "direct" ? "Direct apply" : "Referral"}
-      </p>
-      <ol className="flex items-start">
-        {steps.map((s, i) => (
-          <li key={s.label} className={cn("flex items-start", i > 0 && "flex-1")}>
-            {i > 0 && (
-              <span aria-hidden className="flex-1 px-1 pt-1.5">
-                <span className={cn("block h-0.5 rounded-[1px]", s.state === "todo" ? "bg-line" : color)} />
-              </span>
-            )}
-            <span
-              className={cn(
-                "flex flex-col gap-2",
-                i === 0 ? "items-start" : i === steps.length - 1 ? "items-end" : "items-center",
-              )}
-            >
-              <span
-                aria-hidden
-                className={cn(
-                  "size-3.5 rounded-full",
-                  s.state === "todo" ? "border-[1.5px] border-field bg-card" : color,
-                  s.state === "current" && cn("border-4", ring),
-                )}
-              />
-              <span
-                className={cn(
-                  "text-xs whitespace-nowrap",
-                  s.state === "current" ? cn("font-semibold", text) : s.state === "todo" ? "text-ink-muted" : "text-ink",
-                )}
-              >
-                {s.label}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function TwoTracksVisual() {
-  return (
-    <div
-      aria-label="Example job with both tracks"
-      className="flex w-full flex-col gap-6 rounded-2xl border border-line bg-card p-5 shadow-[0_4px_16px_rgba(23,33,43,0.12)] md:w-[500px] md:shrink-0 md:p-7"
-    >
-      <div className="flex items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="font-heading text-[22px] font-semibold text-ink">Razorpay</span>
-          <span className="text-sm text-ink-muted">SDE-1 Backend · Bengaluru</span>
-        </div>
-        <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">Follow up today</span>
-      </div>
-      <Rail
-        track="direct"
-        steps={[
-          { label: "Not applied", state: "done" },
-          { label: "Applied", state: "current" },
-          { label: "Interviewing", state: "todo" },
-          { label: "Offer", state: "todo" },
-        ]}
-      />
-      <Rail
-        track="referral"
-        steps={[
-          { label: "Not asked", state: "done" },
-          { label: "Asked", state: "done" },
-          { label: "Referred", state: "current" },
-          { label: "Applied", state: "todo" },
-        ]}
-      />
-      <div className="flex items-center gap-2.5 rounded-[10px] bg-page py-2.5 pr-2.5 pl-3.5">
-        <span className="flex-1 text-[13px] text-ink">Follow-up for Rohit is ready to send</span>
-        <span className="rounded-lg bg-ink px-3 py-2 text-[13px] font-semibold text-page">Copy follow-up</span>
-      </div>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------- jobs preview (sample data)
 
@@ -179,7 +88,7 @@ function JobsPreview() {
           referralEmail="you@gmail.com"
           onFilter={() => {}}
         />
-        <JobCard job={SAMPLE_JOB} />
+        <JobCard job={SAMPLE_JOB} defaultOpen />
       </div>
       <span aria-hidden className="absolute inset-x-0 bottom-0 h-[120px] bg-gradient-to-b from-page/0 to-page" />
     </div>
@@ -188,23 +97,11 @@ function JobsPreview() {
 
 // ---------------------------------------------------------------- page
 
-const FEATURES = [
-  {
-    title: "Two tracks per job",
-    body: "Track the direct application and the referral side by side, each with its own status and date.",
-    border: "border-direct",
-  },
-  {
-    title: "Reminders that find you",
-    body: "Set a follow-up date and get a morning email listing what is due. Nothing due means no email.",
-    border: "border-due",
-    badge: "WhatsApp reminders: coming soon",
-  },
-  {
-    title: "Referral messages in one click",
-    body: "Every job has a referral and a follow-up message filled in with your profile and the job. Copy, paste, send.",
-    border: "border-referral",
-  },
+const DUE_SAMPLE = [
+  { title: "Follow up with Rohit at Razorpay", sub: "Referral asked 6 days ago", why: "due today", late: true, track: "var(--referral)" },
+  { title: "Check status at Postman", sub: "Applied directly 9 days ago", why: "1 day late", late: true, track: "var(--direct)" },
+  { title: "Send resume to Arjun at Freshworks", sub: "Referral link received", why: "tomorrow", late: false, track: "var(--referral)" },
+  { title: "Prep for CRED interview round 2", sub: "Interviewing", why: "in 3 days", late: false, track: "var(--direct)" },
 ];
 
 export function Landing() {
@@ -244,21 +141,47 @@ export function Landing() {
             </div>
             <p className="text-[13px] text-ink-muted">Free during the pilot. Export your data as CSV any time.</p>
           </div>
-          <TwoTracksVisual />
+          <RailsHero />
         </section>
 
-        <section aria-label="Features" className="grid gap-8 md:grid-cols-3">
-          {FEATURES.map((f) => (
-            <div key={f.title} className={cn("flex flex-col gap-2.5 border-t-[3px] pt-5", f.border)}>
-              <h2 className="text-[22px] font-semibold text-ink">{f.title}</h2>
-              <p className="text-[15px] leading-6 text-ink-muted">{f.body}</p>
-              {f.badge && (
-                <span className="self-start rounded-md bg-chip px-2 py-0.5 text-xs font-semibold text-ink-muted">
-                  {f.badge}
+        <section aria-label="Try it" className="flex flex-col gap-8">
+          <div className="flex max-w-[640px] flex-col gap-3">
+            <h2 className="text-[30px] leading-[1.1] font-semibold tracking-[-0.015em] text-ink md:text-[44px]">
+              Move a job forward and watch it follow.
+            </h2>
+            <p className="text-[17px] leading-7 text-ink-muted">
+              Pick a track, then advance the card. Each job keeps its direct application and its referral side by
+              side, so nothing sits in a spreadsheet cell you forgot about.
+            </p>
+          </div>
+          <TrackDemo />
+        </section>
+
+        <section aria-label="Reminders" className="flex flex-col gap-10 md:flex-row md:items-start md:gap-14">
+          <div className="flex flex-1 flex-col gap-5">
+            <h2 className="text-[30px] leading-[1.1] font-semibold tracking-[-0.015em] text-ink md:text-[40px]">
+              Open it in the morning. Know what is due.
+            </h2>
+            <p className="max-w-[480px] text-[17px] leading-7 text-ink-muted">
+              Set a follow-up date and get a morning email listing what is due. Nothing due means no email. Every job
+              also has a referral and a follow-up message filled in with your profile. Copy, paste, send.
+            </p>
+            <span className="self-start rounded-md bg-chip px-2 py-0.5 text-xs font-semibold text-ink-muted">
+              WhatsApp reminders: coming soon
+            </span>
+          </div>
+          <ul className="flex flex-1 flex-col gap-2.5">
+            {DUE_SAMPLE.map((d) => (
+              <li key={d.title} className="nudge flex items-center gap-4 rounded-[14px] bg-card px-5 py-4">
+                <span aria-hidden className="size-2.5 flex-none rounded-full" style={{ background: d.track }} />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium text-ink">{d.title}</span>
+                  <span className="mt-0.5 block font-mono text-xs text-ink-muted">{d.sub}</span>
                 </span>
-              )}
-            </div>
-          ))}
+                <span className={cn("font-mono text-xs font-medium", d.late ? "text-due" : "text-ink-muted")}>{d.why}</span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="flex flex-col gap-6">

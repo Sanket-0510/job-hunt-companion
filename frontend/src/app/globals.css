@@ -202,3 +202,206 @@
     transform: translateX(300%);
   }
 }
+
+/*
+ * Motion system (redesign). Rules: ease-out for enters and exits, under 300ms for UI,
+ * animate transform and opacity only, scale .97 on press, honour prefers-reduced-motion.
+ */
+.press {
+  transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Row that nudges toward the pointer, used on due and suggestion lists. */
+.nudge {
+  transition:
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nudge:hover {
+    transform: translateX(6px);
+    box-shadow: 0 6px 20px rgb(23 33 43 / 0.08);
+  }
+}
+
+/* Expand in place: wrap content in .reveal-inner, set data-open on .reveal. */
+.reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 280ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.reveal[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.reveal-inner {
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.reveal[data-open="true"] > .reveal-inner {
+  visibility: visible;
+}
+
+/* A short enter used when a list item or step first appears. */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.enter-up {
+  animation: enter-up 260ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+}
+
+/* Two-track rails. Set --rail and --rail-tint on .rail-track. */
+.rail-track {
+  position: relative;
+  height: 18px;
+  margin: 0 36px 34px;
+}
+.rail-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.rail-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--rail);
+  transform-origin: left center;
+  transform: scaleX(0.5);
+}
+.rail-run {
+  position: absolute;
+  inset: 0;
+}
+.rail-token {
+  position: absolute;
+  right: -9px;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--rail);
+  box-shadow: 0 0 0 6px var(--rail-tint);
+}
+.rail-node {
+  position: absolute;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  border: 2px solid var(--field);
+  background: var(--card);
+}
+.rail-label {
+  position: absolute;
+  top: 28px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+@keyframes rail-fill {
+  0% { transform: scaleX(0); opacity: 1; }
+  70% { transform: scaleX(1); }
+  92% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes rail-token {
+  0% { transform: translateX(-100%); opacity: 1; }
+  70% { transform: translateX(0); }
+  92% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+@keyframes rail-n1 {
+  0%, 92% { background: var(--rail); border-color: var(--rail); }
+  100% { background: var(--card); border-color: var(--field); }
+}
+@keyframes rail-n2 {
+  0%, 17% { background: var(--card); border-color: var(--field); }
+  18%, 92% { background: var(--rail); border-color: var(--rail); }
+  100% { background: var(--card); border-color: var(--field); }
+}
+@keyframes rail-n3 {
+  0%, 34% { background: var(--card); border-color: var(--field); }
+  35%, 92% { background: var(--rail); border-color: var(--rail); }
+  100% { background: var(--card); border-color: var(--field); }
+}
+@keyframes rail-n4 {
+  0%, 52% { background: var(--card); border-color: var(--field); }
+  53%, 92% { background: var(--rail); border-color: var(--rail); }
+  100% { background: var(--card); border-color: var(--field); }
+}
+@keyframes rail-n5 {
+  0%, 69% { background: var(--card); border-color: var(--field); }
+  70%, 92% { background: var(--rail); border-color: var(--rail); }
+  100% { background: var(--card); border-color: var(--field); }
+}
+.rail-anim .rail-fill { animation: rail-fill 9s linear infinite; }
+.rail-anim .rail-run { animation: rail-token 9s linear infinite; }
+.rail-anim .rail-n1 { animation: rail-n1 9s linear infinite; }
+.rail-anim .rail-n2 { animation: rail-n2 9s linear infinite; }
+.rail-anim .rail-n3 { animation: rail-n3 9s linear infinite; }
+.rail-anim .rail-n4 { animation: rail-n4 9s linear infinite; }
+.rail-anim .rail-n5 { animation: rail-n5 9s linear infinite; }
+.rail-delayed.rail-anim .rail-fill,
+.rail-delayed.rail-anim .rail-run,
+.rail-delayed.rail-anim .rail-n1,
+.rail-delayed.rail-anim .rail-n2,
+.rail-delayed.rail-anim .rail-n3,
+.rail-delayed.rail-anim .rail-n4,
+.rail-delayed.rail-anim .rail-n5 {
+  animation-delay: -4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press,
+  .nudge,
+  .reveal,
+  .rail-fill {
+    transition: none;
+  }
+  .enter-up {
+    animation: none;
+  }
+  .rail-anim .rail-fill,
+  .rail-anim .rail-run,
+  .rail-anim .rail-n1,
+  .rail-anim .rail-n2,
+  .rail-anim .rail-n3,
+  .rail-anim .rail-n4,
+  .rail-anim .rail-n5 {
+    animation: none;
+  }
+  .rail-anim .rail-run {
+    transform: translateX(-50%);
+  }
+  .rail-anim .rail-n1,
+  .rail-anim .rail-n2,
+  .rail-anim .rail-n3 {
+    background: var(--rail);
+    border-color: var(--rail);
+  }
+}

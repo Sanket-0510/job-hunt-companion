@@ -65,13 +65,16 @@ function waitingText(item: DueItem): string {
   return item.waiting_since ? `Applied ${when}` : "Follow-up due";
 }
 
-function DueRow({ item }: { item: DueItem }) {
+function DueRow({ item, index }: { item: DueItem; index: number }) {
   const snooze = useSnooze();
   const { job } = item;
   return (
-    <div className="flex flex-col gap-2.5 border-t border-line px-4 py-3.5">
+    <div
+      className="enter-up flex flex-col gap-2.5 border-t border-line px-5 py-4"
+      style={{ animationDelay: `${Math.min(index, 6) * 70}ms` }}
+    >
       <p className="flex min-w-0 items-baseline gap-1.5">
-        <span className="max-w-[60%] shrink-0 truncate text-[15px] font-semibold text-ink">{job.company}</span>
+        <span className="max-w-[60%] shrink-0 truncate text-base font-semibold text-ink">{job.company}</span>
         <span className="truncate text-sm text-ink-muted">{job.role}</span>
       </p>
       <p className="flex items-center gap-2 text-[13px] text-ink">
@@ -100,22 +103,34 @@ function DueRow({ item }: { item: DueItem }) {
   );
 }
 
+/** The memorable element of the dashboard: the count of follow-ups due, large, with the list under it. */
 export function DueTodayCard({ items }: { items: DueItem[] }) {
   return (
-    <Card className="flex">
-      <span aria-hidden className="w-1 shrink-0 bg-due" />
-      <div className="min-w-0 flex-1">
-        <CardHeader title="Due today">
-          {items.length > 0 && (
-            <span className="rounded-md bg-due-tint px-2 py-0.5 text-xs font-semibold text-due">{items.length}</span>
+    <Card>
+      <div className="flex items-end gap-5 px-5 pt-6 pb-5">
+        <span
+          aria-hidden
+          className={cn(
+            "font-heading text-[72px] leading-[0.9] font-bold tracking-[-0.04em] tabular-nums md:text-[88px]",
+            items.length > 0 ? "text-due" : "text-ink-muted",
           )}
-        </CardHeader>
-        {items.length === 0 ? (
-          <p className="border-t border-line px-4 py-5 text-sm text-ink-muted">Nothing due. Nice.</p>
-        ) : (
-          items.map((item) => <DueRow key={item.job.id} item={item} />)
-        )}
+        >
+          {items.length}
+        </span>
+        <div className="flex flex-col gap-1 pb-1">
+          <h2 className="text-2xl font-semibold text-ink md:text-[28px]">Due today</h2>
+          <p className="text-sm text-ink-muted">
+            {items.length > 0 ? "Oldest first. Copy the follow-up or snooze it." : "You are clear for today."}
+          </p>
+        </div>
       </div>
+      {items.length === 0 ? (
+        <p className="border-t border-line px-5 py-5 text-sm text-ink-muted">
+          Nothing due. Nice. Snoozed follow-ups come back in three days.
+        </p>
+      ) : (
+        items.map((item, i) => <DueRow key={item.job.id} item={item} index={i} />)
+      )}
     </Card>
   );
 }
@@ -195,11 +210,16 @@ export function RecentlyAddedCard({ jobs }: { jobs: Job[] }) {
             key={job.id}
             href={`/jobs#job-${job.id}`}
             className={cn(
-              "flex items-center gap-3 border-t border-line px-4 py-3 hover:bg-page/60",
+              "nudge flex items-center gap-3 border-t border-line px-4 py-3 hover:bg-page/60",
               job.stage === "closed" && "opacity-55",
             )}
           >
-            <span aria-hidden className={cn("h-9 w-1 shrink-0 rounded-[2px]", style.stripe)} />
+            <span
+              aria-hidden
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-chip font-heading text-base font-bold text-ink"
+            >
+              {job.company.charAt(0).toUpperCase()}
+            </span>
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="truncate text-sm font-semibold text-ink">{job.company}</span>
               <span className="truncate text-[13px] text-ink-muted">
@@ -271,8 +291,12 @@ export function SuggestionsCard() {
           cities in Settings for better matches. Some roles, like doctors, are not listed on these boards.
         </p>
       ) : (
-        items.map((s) => (
-          <div key={s.id} className="flex flex-col gap-2 border-t border-line px-4 py-3.5">
+        items.map((s, i) => (
+          <div
+            key={s.id}
+            className="enter-up nudge flex flex-col gap-2 border-t border-line px-4 py-3.5"
+            style={{ animationDelay: `${Math.min(i, 6) * 70}ms` }}
+          >
             <p className="flex flex-wrap items-baseline gap-x-1.5">
               <span className="text-[15px] font-semibold text-ink">{s.company}</span>
               <span className="text-sm text-ink-muted">{s.title}</span>

@@ -38,10 +38,11 @@ const STEPS = ["Resume", "About you", "How you apply"] as const;
 function Progress({ step }: { step: number }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex gap-1.5" aria-hidden>
-        {STEPS.map((_, i) => (
-          <span key={i} className={cn("h-1 flex-1 rounded-[2px]", i <= step ? "bg-ink" : "bg-line")} />
-        ))}
+      <div aria-hidden className="relative h-1.5 overflow-hidden rounded-full bg-line">
+        <span
+          className="absolute inset-0 origin-left rounded-full bg-direct transition-transform duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none"
+          style={{ transform: `scaleX(${(step + 1) / STEPS.length})` }}
+        />
       </div>
       <p className="flex gap-2 text-xs">
         <span className="font-mono text-ink-muted">

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import { Brand } from "@/components/brand";
+import { AnimatedRail } from "@/components/landing/rails";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { ApiError, api, unwrap } from "@/lib/api";
@@ -15,6 +16,10 @@ function Card({ title, subtitle, children }: { title: string; subtitle: string; 
   return (
     <main className="mx-auto flex w-full max-w-[440px] flex-1 flex-col gap-8 px-4 pt-14 pb-10">
       <Brand size="lg" className="self-center" />
+      <div aria-hidden className="flex flex-col gap-5 px-2">
+        <AnimatedRail track="direct" />
+        <AnimatedRail track="referral" delayed />
+      </div>
       <div className="flex flex-col gap-5 rounded-2xl border border-line bg-card p-6 shadow-[0_4px_16px_rgba(23,33,43,0.12)]">
         <div className="flex flex-col gap-1.5">
           <h1 className="text-[26px] font-semibold text-ink">{title}</h1>

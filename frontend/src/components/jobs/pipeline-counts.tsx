@@ -21,28 +21,50 @@ function Count({
   label,
   active,
   due,
+  track,
   onClick,
 }: {
   number: number;
   label: string;
   active: boolean;
   due?: boolean;
+  /** Stage counts are drawn as weighted segments in their track colour; others stay neutral chips. */
+  track?: "direct" | "referral";
   onClick: () => void;
 }) {
+  const tone = track
+    ? active
+      ? track === "direct"
+        ? "bg-direct text-white"
+        : "bg-referral text-white"
+      : track === "direct"
+        ? "bg-direct-tint text-direct"
+        : "bg-referral-tint text-referral"
+    : active
+      ? "bg-ink text-page"
+      : "bg-chip text-ink";
   return (
     <button
       type="button"
       aria-pressed={active}
       onClick={onClick}
+      style={track ? { flexGrow: Math.max(number, 1) } : undefined}
       className={cn(
-        "flex min-w-[76px] shrink-0 flex-col items-start gap-0.5 rounded-lg border bg-card px-3 py-2 text-left",
-        active ? "border-2 border-ink px-[11px] py-[7px]" : "border-line hover:border-ink-muted",
+        "press flex min-h-14 min-w-[84px] shrink-0 flex-col items-start justify-center gap-0.5 rounded-xl px-3.5 py-2 text-left",
+        "transition-[transform,box-shadow,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+        tone,
+        active && "-translate-y-1 shadow-[0_10px_24px_rgba(23,33,43,0.2)]",
       )}
     >
-      <span className={cn("font-heading text-[22px] leading-tight font-bold", due && number > 0 ? "text-due" : "text-ink")}>
+      <span
+        className={cn(
+          "font-heading text-[22px] leading-tight font-bold tabular-nums",
+          due && number > 0 && !active && "text-due",
+        )}
+      >
         {number}
       </span>
-      <span className="font-mono text-[11px] tracking-[0.05em] whitespace-nowrap text-ink-muted uppercase">{label}</span>
+      <span className="text-xs font-medium whitespace-nowrap opacity-90">{label}</span>
     </button>
   );
 }
@@ -100,6 +122,7 @@ export function PipelineCounts({
             number={counts.direct[s] ?? 0}
             label={DIRECT_LABELS[s]}
             active={active === `d:${s}`}
+            track="direct"
             onClick={() => toggle(`d:${s}`, { direct_status: s })}
           />
         ))}
@@ -125,6 +148,7 @@ export function PipelineCounts({
             number={counts.referral[s] ?? 0}
             label={REFERRAL_LABELS[s]}
             active={active === `r:${s}`}
+            track="referral"
             onClick={() => toggle(`r:${s}`, { referral_status: s })}
           />
         ))}

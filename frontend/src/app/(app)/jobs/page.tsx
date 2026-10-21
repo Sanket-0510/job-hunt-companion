@@ -198,9 +198,11 @@ function JobsScreen() {
           )
         )
       ) : (
-        <div className="flex flex-col gap-4">
-          {data!.jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+        <div className="flex flex-col gap-3">
+          {data!.jobs.map((job, i) => (
+            <div key={job.id} className="enter-up" style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+              <JobCard job={job} />
+            </div>
           ))}
         </div>
       )}
