@@ -266,12 +266,17 @@ export function SuggestionsCard() {
 
   return (
     <Card>
-      <CardHeader title="Suggested for you">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 md:px-5">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h2 className="text-lg font-semibold text-ink">Suggested for you</h2>
+          <p className="text-[13px] text-ink-muted">
+            {items.length > 0 ? `${items.length} openings picked from company job boards` : "Picked from company job boards"}
+          </p>
+        </div>
         <span className="flex-1" />
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="text-direct"
           disabled={refresh.isPending}
           onClick={() =>
             refresh.mutate(undefined, {
@@ -280,13 +285,13 @@ export function SuggestionsCard() {
             })
           }
         >
-          Refresh
+          {refresh.isPending ? "Refreshing…" : "Refresh"}
         </Button>
-      </CardHeader>
+      </div>
       {list.isPending ? (
-        <p className="border-t border-line px-4 py-5 text-sm text-ink-muted">Loading…</p>
+        <p className="border-t border-line px-5 py-5 text-sm text-ink-muted">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="border-t border-line px-4 py-5 text-sm text-ink-muted">
+        <p className="border-t border-line px-5 py-5 text-sm text-ink-muted">
           No picks yet. We check company job boards every 6 hours, or press Refresh. Add a target role and
           cities in Settings for better matches. Some roles, like doctors, are not listed on these boards.
         </p>
@@ -294,16 +299,26 @@ export function SuggestionsCard() {
         items.map((s, i) => (
           <div
             key={s.id}
-            className="enter-up nudge flex flex-col gap-2 border-t border-line px-4 py-3.5"
+            className="enter-up flex flex-col gap-3 border-t border-line px-4 py-4 transition-colors hover:bg-page/50 md:flex-row md:items-start md:gap-4 md:px-5"
             style={{ animationDelay: `${Math.min(i, 6) * 70}ms` }}
           >
-            <p className="flex flex-wrap items-baseline gap-x-1.5">
-              <span className="text-[15px] font-semibold text-ink">{s.company}</span>
-              <span className="text-sm text-ink-muted">{s.title}</span>
-            </p>
-            {s.location && <p className="text-[13px] text-ink-muted">{s.location}</p>}
-            <p className="text-[13px] text-ink">{s.reason}</p>
-            <div className="flex flex-wrap gap-2">
+            <span
+              aria-hidden
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-chip font-heading text-lg font-bold text-ink"
+            >
+              {s.company.charAt(0).toUpperCase()}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-semibold text-ink">{s.company}</p>
+                <p className="text-sm text-ink-muted">
+                  {s.title}
+                  {s.location ? ` · ${s.location}` : ""}
+                </p>
+              </div>
+              <p className="border-l-2 border-direct/40 pl-2.5 text-[13px] leading-5 text-ink">{s.reason}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 md:flex-col md:items-stretch">
               <Button
                 size="sm"
                 disabled={add.isPending}
@@ -315,24 +330,32 @@ export function SuggestionsCard() {
                   })
                 }
               >
-                Add to tracker
+                {add.isPending && add.variables === s.id ? "Adding…" : "Add to tracker"}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<a href={s.url} target="_blank" rel="noopener noreferrer" />}
-              >
-                Open posting ↗
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => dismiss.mutate(s.id)}>
-                Dismiss
-              </Button>
+              <div className="flex items-center gap-1 md:justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  nativeButton={false}
+                  render={<a href={s.url} target="_blank" rel="noopener noreferrer" />}
+                >
+                  Open ↗
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-ink-muted"
+                  aria-label={`Dismiss ${s.company}`}
+                  onClick={() => dismiss.mutate(s.id)}
+                >
+                  Dismiss
+                </Button>
+              </div>
             </div>
           </div>
         ))
       )}
-      <p className="border-t border-line px-4 py-2.5 text-xs text-ink-muted">
+      <p className="border-t border-line px-5 py-2.5 text-xs text-ink-muted">
         From public Greenhouse, Lever and Ashby job boards. We never apply or contact anyone for you.
       </p>
     </Card>
