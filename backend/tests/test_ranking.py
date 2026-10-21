@@ -2,7 +2,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.modules.suggestions.ranking import experience_fit, level_of, location_fit, score_opening
+from app.modules.suggestions.ranking import (
+    experience_fit,
+    is_software_profile,
+    level_of,
+    location_fit,
+    score_opening,
+)
 
 
 def profile(role="Backend Engineer", years=2, cities=("Bengaluru",), skills=("Python",)):
@@ -146,3 +152,14 @@ def test_year_ranges_in_titles_drop_roles_for_a_one_year_profile(title):
     assert level_of(title)[:2] in {(4, 9), (8, 12)}
     assert score_opening(opening(title, "Bangalore, India"), p, allow_relaxed=True) is None
     assert score_opening(opening(title, "Bangalore, India"), profile(years=6), allow_relaxed=True)
+
+
+@pytest.mark.parametrize("role", ["SDE1", "SDE3", "SWE2", "SDE-1"])
+def test_sde_with_a_level_digit_is_a_software_role(role):
+    assert is_software_profile(profile(role=role))
+    assert score_opening(opening("Software Engineer"), profile(role=role, years=3))
+    assert score_opening(opening("Backend Engineer"), profile(role=role, years=3))
+
+
+def test_a_dentist_is_not_a_software_role():
+    assert not is_software_profile(profile(role="Prosthodontist"))

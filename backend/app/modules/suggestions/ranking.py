@@ -22,14 +22,14 @@ MAX_OVERQUALIFIED = 1  # role asks for less than they have
 
 WORD = re.compile(r"[a-z0-9+#.]+")
 ENGINEERING_TITLE = re.compile(
-    r"\b(engineer|developer|sde|swe|programmer|sre|devops|backend|frontend|full[- ]?stack|"
+    r"\b(engineer|developer|sde\d*|swe\d*|programmer|sre|devops|backend|frontend|full[- ]?stack|"
     r"software|platform|infrastructure|data engineer|mobile|android|ios)\b",
     re.I,
 )
 # Software target roles are matched against engineering titles. Any other target role (product,
 # design, sales, finance...) is matched by the words of the role against title and department.
 SOFTWARE_ROLE = re.compile(
-    r"\b(engineer|developer|dev|sde|swe|programmer|software|sre|devops|backend|back[- ]?end|"
+    r"\b(engineer|developer|dev|sde\d*|swe\d*|programmer|software|sre|devops|backend|back[- ]?end|"
     r"frontend|front[- ]?end|full[- ]?stack|web|mobile|android|ios|data|machine learning|ml|ai|"
     r"cloud|platform|infrastructure|qa|sdet|test|security|python|java|javascript|react|node|golang)\b",
     re.I,
@@ -51,6 +51,8 @@ SPECIALTY = frozenset(
      "android", "ios", "qa", "sdet", "test", "security", "embedded", "firmware", "network",
      "networking", "platform", "cloud", "infrastructure", "graphics", "game", "blockchain"}
 )  # fmt: skip
+# "sde1", "swe3": a level, not a kind of role.
+LEVEL_TOKEN = re.compile(r"(sde|swe)\d*")
 # Boards spell Indian cities both ways.
 CITY_ALIASES = {
     "bengaluru": "bangalore",
@@ -174,7 +176,9 @@ def role_fit(
     if not ENGINEERING_TITLE.search(opening.title):
         return None
     wanted = {
-        w for w in _tokens(profile.target_role) if w not in GENERIC_SOFTWARE and not w.isdigit()
+        w
+        for w in _tokens(profile.target_role)
+        if w not in GENERIC_SOFTWARE and not w.isdigit() and not LEVEL_TOKEN.fullmatch(w)
     }
     matched = wanted & title_words
     if matched:
