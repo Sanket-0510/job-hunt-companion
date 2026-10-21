@@ -49,15 +49,15 @@ function Card({
     <section
       id={id}
       className={cn(
-        "enter-up scroll-mt-24 overflow-hidden rounded-xl border bg-card",
+        "enter-up scroll-mt-32 overflow-hidden md:scroll-mt-24 rounded-xl border bg-card",
         danger ? "border-destructive" : "border-line",
       )}
     >
-      <div className="flex flex-col gap-1 border-b border-line px-5 py-4 md:px-6">
+      <div className="flex flex-col gap-1 border-b border-line px-4 py-4 md:px-6">
         <h2 className="text-xl font-semibold text-ink">{title}</h2>
         {subtitle && <p className="text-sm text-ink-muted">{subtitle}</p>}
       </div>
-      <div className="flex flex-col gap-5 p-5 md:p-6">{children}</div>
+      <div className="flex flex-col gap-5 p-4 md:p-6">{children}</div>
     </section>
   );
 }
@@ -69,13 +69,16 @@ function Row({ children }: { children: React.ReactNode }) {
 
 function SectionNav() {
   return (
-    <nav aria-label="Settings sections" className="md:sticky md:top-6 md:self-start">
-      <ul className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0 md:pb-0">
+    <nav
+      aria-label="Settings sections"
+      className="sticky top-14 z-20 -mx-4 border-b border-line bg-page px-4 py-2 md:top-6 md:z-auto md:mx-0 md:self-start md:border-0 md:bg-transparent md:p-0"
+    >
+      <ul className="flex gap-1.5 overflow-x-auto md:flex-col md:gap-0.5 md:overflow-visible">
         {SECTIONS.map((sec) => (
           <li key={sec.id} className="shrink-0">
             <a
               href={`#${sec.id}`}
-              className="press block rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors hover:bg-chip hover:text-ink"
+              className="press block rounded-full border border-line bg-card px-3.5 py-1.5 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors hover:bg-chip hover:text-ink md:rounded-lg md:border-0 md:bg-transparent md:px-3"
             >
               {sec.label}
             </a>
@@ -146,11 +149,11 @@ function ResumeBox({ profile, onParsed }: { profile: Profile; onParsed: (p: Pars
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[13px] font-medium text-ink">Resume</span>
-      <div className="flex items-center gap-3 rounded-lg border border-line p-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line p-3">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-chip font-mono text-[10px] text-ink-muted">
           PDF
         </span>
-        <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex min-w-[140px] flex-1 flex-col">
           <span className="truncate text-sm font-medium text-ink">
             {status === "reading" ? "Reading your resume…" : (file?.original_filename ?? "No resume uploaded")}
           </span>
@@ -266,7 +269,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
           value={f.highlights}
           onChange={(e) => set("highlights", e.target.value)}
           placeholder="I've worked at PhonePe, SuperMoney (Flipkart) and as an LFX mentee with Hyperledger."
-          className="rounded-lg border border-line bg-card px-3 py-2.5 text-sm text-ink"
+          className="rounded-lg border border-line bg-card px-3 py-2.5 text-base text-ink md:text-sm"
         />
         <p className="text-xs text-ink-muted">One sentence that goes into your referral message.</p>
       </div>
@@ -291,8 +294,8 @@ function ProfileCard({ profile }: { profile: Profile }) {
           helper="We'll use this when WhatsApp reminders launch"
         />
       </Row>
-      <div className="flex justify-end border-t border-line pt-4">
-        <Button onClick={save} disabled={update.isPending}>
+      <div className="flex border-t border-line pt-4 md:justify-end">
+        <Button className="w-full md:w-auto" onClick={save} disabled={update.isPending}>
           {update.isPending ? "Saving…" : "Save profile"}
         </Button>
       </div>
@@ -353,7 +356,8 @@ function TemplatesCard({ profile }: { profile: Profile }) {
     }
   }
 
-  const area = "min-h-[220px] rounded-lg border border-line bg-card px-3 py-2.5 text-sm leading-5 text-ink";
+  const area =
+    "min-h-[220px] rounded-lg border border-line bg-card px-3 py-2.5 text-base leading-5 text-ink md:text-sm";
   return (
     <Card id="templates" title="Message templates" subtitle="Your wording for the copy-ready messages on every job.">
       <Row>
@@ -381,9 +385,11 @@ function TemplatesCard({ profile }: { profile: Profile }) {
         </div>
         <p className="text-xs text-ink-muted">[Name] stays blank for you to type. The rest fills in from the job and your profile.</p>
       </div>
-      <div className="flex justify-end gap-2 border-t border-line pt-4">
-        <Button variant="ghost" onClick={() => save(true)} disabled={update.isPending || !d}>Reset to default</Button>
-        <Button onClick={() => save()} disabled={update.isPending || !d}>Save templates</Button>
+      <div className="flex flex-col-reverse gap-2 border-t border-line pt-4 sm:flex-row sm:justify-end">
+        <Button variant="ghost" className="w-full sm:w-auto" onClick={() => save(true)} disabled={update.isPending || !d}>Reset to default</Button>
+        <Button className="w-full sm:w-auto" onClick={() => save()} disabled={update.isPending || !d}>
+          Save templates
+        </Button>
       </div>
     </Card>
   );
@@ -497,7 +503,7 @@ function DataCard() {
             This deletes your account and every job you&apos;ve tracked. It can&apos;t be undone. Export your jobs first if you want a copy.
           </p>
           <Field label="Type DELETE to confirm" className="[&_input]:font-mono" value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button className="bg-destructive text-white hover:bg-destructive/90" disabled={typed !== "DELETE" || pending} onClick={remove}>
               {pending ? "Deleting…" : "Delete my account"}
             </Button>
@@ -528,7 +534,7 @@ export default function SettingsPage() {
       {!profile.data ? (
         <span className="mx-auto mt-10 size-6 animate-spin rounded-full border-2 border-line border-t-ink" />
       ) : (
-        <div className="grid gap-5 md:grid-cols-[190px_minmax(0,1fr)] md:gap-8">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-[190px_minmax(0,1fr)] md:gap-8">
           <SectionNav />
           <div className="flex min-w-0 flex-col gap-5 md:gap-6">
             <ProfileCard profile={profile.data} />

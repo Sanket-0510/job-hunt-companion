@@ -58,7 +58,7 @@ export function SelectField<T extends string>({
           value={value}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value as T)}
-          className="h-full w-full cursor-pointer appearance-none truncate rounded-lg bg-transparent pr-8 pl-2.5 text-sm font-medium outline-offset-2"
+          className="h-full w-full cursor-pointer appearance-none truncate rounded-lg bg-transparent pr-8 pl-2.5 text-base font-medium md:text-sm outline-offset-2"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value} className="text-ink">
