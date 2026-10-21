@@ -123,6 +123,8 @@ async def _candidates(db: AsyncSession, profile: Profile) -> list[tuple[Opening,
     places = ["india", *cities, *(CITY_ALIASES[c] for c in cities if c in CITY_ALIASES)]
     place_match = or_(*(Opening.location.ilike(f"%{p}%") for p in places))
     rows = (await db.scalars(select(Opening).where(Opening.id.not_in(decided), place_match))).all()
+    software = is_software_profile(profile)
+    role_words = _role_words(profile)
     scored: list[tuple[Opening, Fit]] = []
     dropped = {"tracked": 0, "role": 0, "years": 0, "location": 0}
     for o in rows:
@@ -135,11 +137,12 @@ async def _candidates(db: AsyncSession, profile: Profile) -> list[tuple[Opening,
         elif fit is not None:
             scored.append((o, fit))
     logger.info(
-        "candidates for %s: %d near their places, %d passed (dropped: %s)",
+        "candidates for %s: %d near their places, %d passed (dropped: %s). Matching as %s",
         profile.user_id,
         len(rows),
         len(scored),
         ", ".join(f"{k} {v}" for k, v in dropped.items()),
+        "software" if software else f"non-software, role words {sorted(role_words)}",
     )
     # Loosened-role matches only fill in when strict ones run short.
     if sum(1 for _, f in scored if not f.relaxed) >= TOP_N:
