@@ -228,15 +228,10 @@ class Fit:
         return " · ".join(parts)[:110]
 
 
-def score_opening(
+def evaluate(
     opening: _OpeningLike, profile: _ProfileLike, allow_relaxed: bool = False
-) -> Fit | None:
-    """Gate in order: role, years of experience, location. Then note the matched skills.
-
-    Returns None when any gate fails. With allow_relaxed, a title that fails only the strict role
-    gate (an engineering title without the target role's distinctive word) still passes, marked
-    `relaxed`, so callers can use it only when strict matches run short.
-    """
+) -> tuple[Fit | None, str | None]:
+    """(fit, None) when the opening passes, or (None, name of the first gate it failed)."""
     software = is_software_profile(profile)
     relaxed = False
     role = role_fit(opening, profile, software)
@@ -244,20 +239,20 @@ def score_opening(
         role = role_fit(opening, profile, software, strict=False)
         relaxed = role is not None
     if role is None:
-        return None
+        return None, "role"
     lo, hi, level = level_of(opening.title, software)
     years = (
         float(profile.years_experience) if profile.years_experience is not None else DEFAULT_YEARS
     )
     experience = experience_fit(years, (lo, hi))
     if experience is None:
-        return None
+        return None, "years"
     place = location_fit(opening.location, profile.preferred_cities)
     if place is None:
-        return None
+        return None, "location"
     location, place_name = place
     total = 100 * (W_ROLE * role + W_EXPERIENCE * experience + W_LOCATION * location)
-    return Fit(
+    fit = Fit(
         role,
         experience,
         location,
@@ -267,3 +262,16 @@ def score_opening(
         matched_skills(opening, profile),
         relaxed,
     )
+    return fit, None
+
+
+def score_opening(
+    opening: _OpeningLike, profile: _ProfileLike, allow_relaxed: bool = False
+) -> Fit | None:
+    """Gate in order: role, years of experience, location. Then note the matched skills.
+
+    Returns None when any gate fails. With allow_relaxed, a title that fails only the strict role
+    gate (an engineering title without the target role's distinctive word) still passes, marked
+    `relaxed`, so callers can use it only when strict matches run short.
+    """
+    return evaluate(opening, profile, allow_relaxed)[0]

@@ -20,8 +20,8 @@ from app.modules.suggestions.ranking import (  # noqa: F401  (re-exported for ca
     SOFTWARE_ROLE,
     Fit,
     _role_words,
+    evaluate,
     is_software_profile,
-    score_opening,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,12 +123,24 @@ async def _candidates(db: AsyncSession, profile: Profile) -> list[tuple[Opening,
     places = ["india", *cities, *(CITY_ALIASES[c] for c in cities if c in CITY_ALIASES)]
     place_match = or_(*(Opening.location.ilike(f"%{p}%") for p in places))
     rows = (await db.scalars(select(Opening).where(Opening.id.not_in(decided), place_match))).all()
-    scored = [
-        (o, fit)
-        for o in rows
-        if (o.company.lower(), o.title.lower()) not in tracked
-        and (fit := score_opening(o, profile, allow_relaxed=True)) is not None
-    ]
+    scored: list[tuple[Opening, Fit]] = []
+    dropped = {"tracked": 0, "role": 0, "years": 0, "location": 0}
+    for o in rows:
+        if (o.company.lower(), o.title.lower()) in tracked:
+            dropped["tracked"] += 1
+            continue
+        fit, failed = evaluate(o, profile, allow_relaxed=True)
+        if fit is None and failed:
+            dropped[failed] += 1
+        elif fit is not None:
+            scored.append((o, fit))
+    logger.info(
+        "candidates for %s: %d near their places, %d passed (dropped: %s)",
+        profile.user_id,
+        len(rows),
+        len(scored),
+        ", ".join(f"{k} {v}" for k, v in dropped.items()),
+    )
     # Loosened-role matches only fill in when strict ones run short.
     if sum(1 for _, f in scored if not f.relaxed) >= TOP_N:
         scored = [(o, f) for o, f in scored if not f.relaxed]
