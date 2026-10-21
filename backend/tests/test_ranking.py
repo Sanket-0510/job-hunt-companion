@@ -48,12 +48,20 @@ def test_role_is_a_strict_gate():
     p = profile(role="Backend Engineer")
     assert score_opening(opening("Backend Engineer"), p)
     assert score_opening(opening("Frontend Engineer"), p) is None
-    assert score_opening(opening("Software Engineer"), p) is None
+    assert score_opening(opening("Data Engineer"), p) is None
+
+
+def test_general_titles_suit_a_specialised_profile():
+    p = profile(role="SDE-1 Backend")
+    general = score_opening(opening("Software Engineer"), p)
+    exact = score_opening(opening("Backend Engineer"), p)
+    assert general and not general.relaxed
+    assert exact and exact.total > general.total
 
 
 def test_relaxed_role_passes_only_when_asked():
     p = profile(role="Backend Engineer")
-    fit = score_opening(opening("Software Engineer"), p, allow_relaxed=True)
+    fit = score_opening(opening("Frontend Engineer"), p, allow_relaxed=True)
     assert fit and fit.relaxed
     strict = score_opening(opening("Backend Engineer"), p, allow_relaxed=True)
     assert strict and not strict.relaxed and strict.sort_key > fit.sort_key

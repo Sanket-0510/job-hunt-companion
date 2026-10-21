@@ -44,6 +44,13 @@ GENERIC_SOFTWARE = frozenset(
     {"engineer", "engineering", "developer", "software", "sde", "swe", "programmer", "dev",
      "and", "the", "for", "with", "senior", "junior", "lead", "sr", "jr", "i", "ii", "iii"}
 )  # fmt: skip
+# Words that name an engineering speciality. A title with one of these (that is not the profile's
+# own) is a different kind of role; a title with none is a general software role.
+SPECIALTY = frozenset(
+    {"frontend", "backend", "fullstack", "data", "ml", "ai", "machine", "devops", "sre", "mobile",
+     "android", "ios", "qa", "sdet", "test", "security", "embedded", "firmware", "network",
+     "networking", "platform", "cloud", "infrastructure", "graphics", "game", "blockchain"}
+)  # fmt: skip
 # Boards spell Indian cities both ways.
 CITY_ALIASES = {
     "bengaluru": "bangalore",
@@ -155,8 +162,9 @@ def role_fit(
 ) -> float | None:
     """0 to 1 for how well the title matches the target role. None when it is the wrong role.
 
-    Strict: a software target role with distinctive words (backend, data, fullstack...) needs at
-    least one of them in the title or team. Relaxed: any engineering title passes.
+    Strict: a software target role with distinctive words (backend, data, fullstack...) passes a
+    title that has one of them, or a general title with no other speciality ("Software Engineer").
+    Relaxed: any engineering title passes.
     """
     title_words = _tokens(opening.title) | _tokens(opening.department)
     if not software:
@@ -168,12 +176,17 @@ def role_fit(
     wanted = {
         w for w in _tokens(profile.target_role) if w not in GENERIC_SOFTWARE and not w.isdigit()
     }
+    matched = wanted & title_words
+    if matched:
+        return 0.4 + 0.6 * len(matched) / len(wanted)
     if not wanted:
         return 0.7
-    matched = wanted & title_words
-    if strict and not matched:
+    # No word of the target role in the title. A plain "Software Engineer" still suits, because it
+    # names no other speciality. A title with another speciality (frontend, data, devops...) does
+    # not, unless the gate is relaxed.
+    if SPECIALTY & title_words and strict:
         return None
-    return 0.4 + 0.6 * len(matched) / len(wanted)
+    return 0.4 if SPECIALTY & title_words else 0.6
 
 
 def matched_skills(opening: _OpeningLike, profile: _ProfileLike) -> tuple[str, ...]:
